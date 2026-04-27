@@ -1,0 +1,94 @@
+<div class="chapter-list">
+  <!-- <select id="formSelect" formControlName="chapter" (change)="onChange()">
+      @for (item of listChapter; track $index) {
+        
+        <option value="{{ item.id }}" (click)="selectChapter(item)">
+            
+           {{item.iconName}}
+            <span>{{ item.name }}</span>
+        </option>
+      }
+    </select> -->
+
+  <div class="dropdown">
+    <!-- Selected -->
+    <div class="dropdown-selected" (click)="toggleDropdown()">
+      <div class="d-flex">
+        <span class="icon-sidebar {{ getSelected()?.className }}">
+          <mat-icon>{{ getSelected()?.iconName }}</mat-icon>
+        </span>
+
+        <span>{{ getSelected()?.description || "Chọn chương" }}</span>
+        <span class="arrow"><mat-icon>arrow_drop_down</mat-icon></span>
+      </div>
+    </div>
+
+    <!-- List -->
+    @if (isOpen) {
+      <div class="dropdown-list">
+        @for (c of listChapter; track c.id) {
+          <div
+            class="dropdown-item"
+            [class.active]="c.id === selectChapterId"
+            (click)="selectChapter(c)"
+          >
+            <span class="icon-sidebar {{ c.className }}">
+              <mat-icon>{{ c.iconName }}</mat-icon>
+            </span>
+            <span>{{ c.description }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+  <p>You selected: {{ selected }}</p>
+
+  <div class="sidebar-section sidebar-search-wrapper">
+    <div class="search-header">
+      <h3 class="sidebar-title sidebar-section-title">
+        <i class="fas fa-search"></i>
+        Tìm kiếm câu hỏi
+      </h3>
+    </div>
+    <div class="search-wrapper">
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input-modern"
+        placeholder="Nhập nội dung câu hỏi..."
+      />
+      <span class="search-icon">
+        <mat-icon>search</mat-icon>
+      </span>
+    </div>
+    <!-- Kết quả tìm kiếm - Overlay hiện đè lên danh sách câu hỏi -->
+    <div id="searchResults" class="search-results-overlay"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <!-- Additional content for the sidebar -->
+    <div class="sibar-header-action">
+      <h3 class="sidebar-section-title">Danh sách câu hỏi</h3>
+      <button class="btn-reset-score" (click)="removeQuizState()">Xóa điểm</button>
+    </div>
+    <div class="question-number-list d-grid">
+      <!-- List of questions will be rendered here -->
+       @if(listQuestion.length > 0) {
+         @for (question of listQuestion; track question.questionNumber) {
+           <button
+             type="button"
+             id="cau{{ question.questionNumber }}"
+             class="question-number"
+             [ngClass]="question.state"
+             style=""
+              (click)="selectQuestion(question)"
+           >
+             {{ question.questionNumber }}
+           </button>
+         }
+       } @else {
+         <span class="text-muted">Không có câu hỏi nào. Vui lòng chọn chương để tải câu hỏi.</span>
+
+       }
+  </div>
+</div>

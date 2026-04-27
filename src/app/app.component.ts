@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
+import { QuestionContainerComponent } from "./components/question-container/question-container.component";
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [QuestionContainerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
