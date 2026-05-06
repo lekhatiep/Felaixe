@@ -1,15 +1,4 @@
 <div class="chapter-list">
-  <!-- <select id="formSelect" formControlName="chapter" (change)="onChange()">
-      @for (item of listChapter; track $index) {
-        
-        <option value="{{ item.id }}" (click)="selectChapter(item)">
-            
-           {{item.iconName}}
-            <span>{{ item.name }}</span>
-        </option>
-      }
-    </select> -->
-
   <div class="dropdown">
     <!-- Selected -->
     <div class="dropdown-selected" (click)="toggleDropdown()">
@@ -41,8 +30,6 @@
       </div>
     }
   </div>
-  <p>You selected: {{ selected }}</p>
-
   <div class="sidebar-section sidebar-search-wrapper">
     <div class="search-header">
       <h3 class="sidebar-title sidebar-section-title">

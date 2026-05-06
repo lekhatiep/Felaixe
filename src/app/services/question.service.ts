@@ -35,6 +35,14 @@ export class QuestionService {
   changedQuizStateSubject = new BehaviorSubject<boolean>(false);
   changedQuizState$ = this.changedQuizStateSubject.asObservable();
 
+  nextQuestionSubject = new BehaviorSubject<Question | undefined>(undefined);
+  nextQuestion$ = this.nextQuestionSubject.asObservable();
+
+  selectedQuestionNumberSubject = new BehaviorSubject<number | null>(null);
+  selectedQuestionNumber$ = this.selectedQuestionNumberSubject.asObservable();
+
+  currentIndex : number = 0;
+
   setSelectedChapterId(chapterId: number) {
     this.selectedChapterId = chapterId;
     this.chapterSelectedSubject.next(chapterId);
@@ -51,13 +59,13 @@ export class QuestionService {
       });
     }
 
-     if (chapterId !== null && chapterId!== 0) {
+    if (chapterId !== null && chapterId !== 0) {
       if (chapterId === 7) {
         const listQuestionCritical = this.listQuestion.filter(
           (q) => q.isCritical === true,
         );
         this.listQuestion = listQuestionCritical;
-        return  this.listQuestion;
+        return this.listQuestion;
       }
 
       const listQuestionUpdated = this.listQuestion.filter(
@@ -82,6 +90,10 @@ export class QuestionService {
   }
 
   setCurrentQuestion(question: Question) {
+    if (this.currentQuestionSelectedSubject.value == question) {
+      return;
+    }
+
     this.currentQuestionSelectedSubject.next(question);
   }
 
@@ -112,6 +124,7 @@ export class QuestionService {
       );
       if (quizStateExist) {
         quizStateExist.answerId = quizState.answerId;
+        quizStateExist.isCorrect = quizState.isCorrect;
       }
       localStorage.setItem(
         'list-quiz-state',
@@ -129,5 +142,20 @@ export class QuestionService {
     return this.loadQuizStateAns().find(
       (q) => q.questionNumber == questionNumber,
     );
+  }
+
+  nextQuestion(question: Question) {
+    this.nextQuestionSubject.next(question);
+  }
+  setSelectedQuestionNumber(questionNumber: number) {
+    this.selectedQuestionNumberSubject.next(questionNumber);
+  }
+
+  setCurrentIndex(index: number){
+    this.currentIndex = index;
+  }
+
+  getCurrentIndex(){
+    return this.currentIndex;
   }
 }

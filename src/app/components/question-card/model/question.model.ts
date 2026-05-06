@@ -32,3 +32,8 @@ export interface QuizState {
 export interface QuestionResponseModel {
     
 }
+
+export interface CurrentQuestionState {
+    index: number,
+    question: Question
+}
