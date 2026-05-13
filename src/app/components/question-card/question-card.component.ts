@@ -12,8 +12,9 @@ import {
 import { ApiService } from '../../services/api.service';
 import { Answer, Question, QuizState } from './model/question.model';
 import { QuestionService } from '../../services/question.service';
-import { URL_CLOUDINARY_IMG_QUESTION } from '../../constants/app.constants';
+import { AppConstants } from '../../constants/app.constants';
 import { QuestionImageComponent } from "../question-image/question-image/question-image.component";
+import { ExamService } from '../../services/exam.service';
 
 @Component({
   selector: 'app-question-card',
@@ -27,7 +28,9 @@ export class QuestionCardComponent implements OnInit {
 
   private apiService = inject(ApiService);
   private questionService = inject(QuestionService);
+  private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
+  
   isCorrect: boolean | null = null;
   listQuestion: Question[] = [];
   index: number =  this.questionService.getCurrentIndex();
@@ -38,7 +41,7 @@ export class QuestionCardComponent implements OnInit {
   isLearningMode: boolean = true;
   selectedAnswerId: number = 0;
   quizState: QuizState | undefined = undefined;
-  url_image_question = URL_CLOUDINARY_IMG_QUESTION;
+  url_image_question = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
   hasImage: boolean = true;
 
   constructor(private fb: FormBuilder) {}
@@ -181,7 +184,7 @@ export class QuestionCardComponent implements OnInit {
       );
       if (this.quizState) {
         this.selectedAnswerId = this.quizState?.answerId;
-        this.isCorrect = this.quizState.isCorrect;
+        this.isCorrect = this.quizState.isCorrect ?? false;
         this.answered = true;
       }
     }

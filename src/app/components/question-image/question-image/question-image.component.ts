@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { URL_CLOUDINARY_IMG_QUESTION } from '../../../constants/app.constants';
+import { AppConstants } from '../../../constants/app.constants';
 
 @Component({
   selector: 'app-question-image',
@@ -11,7 +11,7 @@ import { URL_CLOUDINARY_IMG_QUESTION } from '../../../constants/app.constants';
 export class QuestionImageComponent {
   @Input() questionId!: number;
 
-  baseUrl: string = URL_CLOUDINARY_IMG_QUESTION;
+  baseUrl: string = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
 
   currentSrc!: string;
   isVisible: boolean = true;

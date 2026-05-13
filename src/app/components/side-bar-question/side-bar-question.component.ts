@@ -34,8 +34,7 @@ import { distinctUntilChanged } from 'rxjs';
     CommonModule,
   ],
   templateUrl: './side-bar-question.component.html',
-  styleUrl: './side-bar-question.component.scss',
-  encapsulation: ViewEncapsulation.None,
+  styleUrl: './side-bar-question.component.scss'
 })
 export class SideBarQuestionComponent {
   private questionService = inject(QuestionService);
@@ -43,8 +42,8 @@ export class SideBarQuestionComponent {
   private destroyRef = inject(DestroyRef);
 
   selected = 'option2';
-  @Input({ required: true }) listChapter: Chapter[] = [];
-
+ // @Input({ required: true }) listChapter: Chapter[] = [];
+  listChapter: Chapter[] = [];
   selectedChapter = this.listChapter[0];
   selectChapterId: number = 0;
   selectForm!: FormGroup;
@@ -75,6 +74,8 @@ export class SideBarQuestionComponent {
 
   constructor(private fb: FormBuilder) {}
   ngOnInit() {
+
+    this.listChapter = this.questionService.getListChapter();
     this.selectForm = this.fb.group({
       chapter: [null],
     });

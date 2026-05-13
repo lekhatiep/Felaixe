@@ -1,0 +1,17 @@
+<div class="exam-number-selection">
+  <div class="exam-number-selection-header">
+    <!-- <button (click)="sendMessage()">Send Message</button> -->
+    <button id="backToExamTypeBtn" class="btn-back-exam-type" (click) = "onBack()">
+      <i class="fas fa-arrow-left"></i>
+      Quay lại chọn hạng
+    </button>
+    <h3 class="exam-number-title">
+      <i class="fas fa-list-ol"></i>
+      Chọn đề thi - <span id="selectedExamTypeLabel">Hạng B</span>
+    </h3>
+  </div>
+  <div class="exam-numbers-grid">
+    <app-practice-test-card [numberQuestion]="60" [minutes]="30"></app-practice-test-card>
+    
+  </div>
+</div>

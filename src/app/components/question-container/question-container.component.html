@@ -1,13 +1,25 @@
 <div class="container">
-  <div class="header-container">
-    <h2 class="header-title">Học lý thuyết 600 câu lái xe ô tô</h2>
-  </div>
+  @if (mode == "study") {
+    <div class="header-container">
+      <h2 class="header-title">Học lý thuyết 600 câu lái xe ô tô</h2>
+    </div>
+  }
+
   <div class="question-container">
     <div class="side-bar-question">
-      <app-side-bar-question [listChapter]="listChapter" ></app-side-bar-question>
+      <!-- @if (mode == "study") {
+        <app-side-bar-question></app-side-bar-question>
+      } @else {
+        <app-side-bar-exam />
+      } -->
+        <app-side-bar-wrap [mode]="mode"/>
     </div>
     <div class="question-content">
-      <app-question-card></app-question-card>
+      @if (mode == "study") {
+        <app-question-card></app-question-card>
+      } @else {
+        <app-question-content-exam />
+      }
     </div>
   </div>
 </div>

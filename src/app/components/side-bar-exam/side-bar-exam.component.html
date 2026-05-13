@@ -1,0 +1,24 @@
+<div class="chapter-list">
+
+  <div class="sidebar-section">
+    <!-- Additional content for the sidebar -->
+    <div class="question-number-list d-grid">
+      <!-- List of questions will be rendered here -->
+       @if(listQuestion.length > 0) {
+         @for (question of listQuestion; track question.questionNumber; let idx = $index) {
+           <button
+             type="button"
+             id="cau{{ question.questionNumber }}"
+             class="question-number"
+             [ngClass]="question.state"
+             style=""
+              (click)="selectQuestion(question)"
+           >
+             {{ idx + 1 }}
+           </button>
+         }
+       } @else {
+         <span class="text-muted">Không có câu hỏi nào.</span>
+       }
+  </div>
+</div>
