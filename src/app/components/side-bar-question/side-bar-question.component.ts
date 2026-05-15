@@ -1,9 +1,13 @@
 import {
+  AfterContentInit,
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   HostListener,
   inject,
   Input,
+  OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,15 +38,16 @@ import { distinctUntilChanged } from 'rxjs';
     CommonModule,
   ],
   templateUrl: './side-bar-question.component.html',
-  styleUrl: './side-bar-question.component.scss'
+  styleUrl: './side-bar-question.component.scss',
 })
-export class SideBarQuestionComponent {
+export class SideBarQuestionComponent implements OnInit {
   private questionService = inject(QuestionService);
   private apiService = inject(ApiService);
   private destroyRef = inject(DestroyRef);
+  //private cdRef = inject(ChangeDetectorRef)
 
   selected = 'option2';
- // @Input({ required: true }) listChapter: Chapter[] = [];
+  // @Input({ required: true }) listChapter: Chapter[] = [];
   listChapter: Chapter[] = [];
   selectedChapter = this.listChapter[0];
   selectChapterId: number = 0;
@@ -72,9 +77,12 @@ export class SideBarQuestionComponent {
     }
   }
 
-  constructor(private fb: FormBuilder) {}
-  ngOnInit() {
+  constructor(
+    private fb: FormBuilder,
+    private cdRef: ChangeDetectorRef,
+  ) {}
 
+  ngOnInit() {
     this.listChapter = this.questionService.getListChapter();
     this.selectForm = this.fb.group({
       chapter: [null],
@@ -85,7 +93,6 @@ export class SideBarQuestionComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
-          console.log(data?.isCorrect);
           this.isCorrectAns = data?.isCorrect;
           this.isAnswered = true;
         },
@@ -125,7 +132,7 @@ export class SideBarQuestionComponent {
         },
       });
 
-      this.currentIndex = this.questionService.getCurrentIndex();
+    this.currentIndex = this.questionService.getCurrentIndex();
   }
 
   onChange() {
@@ -154,14 +161,18 @@ export class SideBarQuestionComponent {
   onChangeChapter(chapter: Chapter) {}
 
   loadQuestion() {
-    this.listQuestion = this.questionService.loadQuestions(
-      this.selectChapterId,
-    );
+    this.questionService
+      .loadQuestionByChapterID(this.selectChapterId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.listQuestion = data;
+      });
+
     this.listQuestion.map((q) => ({
       ...q,
       state: 'default',
     }));
-
+   
     this.listQuizState = this.questionService.loadQuizStateAns();
 
     this.listQuestion.map((q) => {
@@ -173,6 +184,7 @@ export class SideBarQuestionComponent {
       }
     });
     this.selectQuestion(this.listQuestion[0]);
+    
   }
 
   selectQuestion(selectQuestion: Question) {
@@ -186,14 +198,12 @@ export class SideBarQuestionComponent {
       selectQuestion.quizState = ansQuizState;
     }
 
-
     this.listQuestion.map((q) => {
       const qz = this.listQuizState.find(
         (qs) => qs.questionNumber == q.questionNumber,
       );
       if (qz) {
         q.state = qz.isCorrect ? 'correct' : 'incorrect';
-       
       } else {
         q.state = 'default';
       }
@@ -202,7 +212,7 @@ export class SideBarQuestionComponent {
     selectQuestion.state = 'active';
 
     this.questionService.setCurrentQuestion(selectQuestion);
-
+ return;
     this.currentIndex = this.listQuestion.indexOf(selectQuestion);
     this.questionService.setCurrentIndex(this.currentIndex);
   }

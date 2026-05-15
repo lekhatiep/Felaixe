@@ -17,6 +17,7 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { QuestionImageComponent } from '../question-image/question-image/question-image.component';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-question-content-exam',
@@ -50,22 +51,30 @@ export class QuestionContentExamComponent {
     this.loadQuestion();
 
     this.examService.currentQuestionSelected$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        // delay(0)
+      )
       .subscribe({
         next: (question) => {
           if (question) {
-            this.currentQuestion = question;
-            this.index = this.examService.getCurrentIndex();
-            if (question.isAnswered) {
-              const answer = question.answers?.find(
-                (a) => a.id == question.quizState?.answerId,
-              );
-              this.selectedAnswerId = answer?.id ?? 0;
-              this.isCorrect = answer?.isCorrect ?? false;
-              this.answered = true;
-            } else {
-              this.resetDefault();
-            }
+            setTimeout(() => {
+              this.currentQuestion = question;
+              this.index = this.examService.getCurrentIndex();
+              if (question.isAnswered) {
+                const answer = question.answers?.find(
+                  (a) => a.id == question.quizState?.answerId,
+                );
+                this.selectedAnswerId = answer?.id ?? 0;
+                this.answered = true;
+              } else {
+                this.resetDefault();
+              }
+
+             
+            });
+
+             this.loadQuizState();
           }
         },
       });
@@ -96,25 +105,26 @@ export class QuestionContentExamComponent {
 
     this.examService.loadExamQuestions().subscribe((data) => {
       this.listQuestion = data;
-      console.log('question-exam', this.listQuestion);
     });
 
     //remove temp answered
-    
   }
 
   submitAnswer(answer: Answer) {
+    this.selectedAnswerId = answer.id;
+    this.isCorrect = answer.isCorrect;
+    this.answered = true;
 
     this.examService.setCurrentAnswer(answer);
     this.examService.setQuizStateAnswer({
       questionNumber: this.currentQuestion?.questionNumber ?? 0,
-      answerId: answer.id
+      answerId: answer.id,
     });
 
-  
+    if (this.currentQuestion) {
+      this.currentQuestion.state = 'answered';
+    }
   }
-
- 
 
   resetDefault() {
     //this.index = 0;
@@ -126,6 +136,9 @@ export class QuestionContentExamComponent {
   }
 
   loadQuizState() {
+    console.log('load quiz state');
+    console.log(this.currentQuestion);
+
     if (this.currentQuestion) {
       this.quizState = this.examService.getQuizState(
         this.currentQuestion?.questionNumber,
@@ -133,6 +146,7 @@ export class QuestionContentExamComponent {
       if (this.quizState) {
         this.selectedAnswerId = this.quizState?.answerId;
         this.answered = true;
+        console.log('answered');
       }
     }
   }

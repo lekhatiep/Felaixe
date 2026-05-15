@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { ChangeDetectorRef, Injectable, inject } from '@angular/core';
+import { BehaviorSubject, map, Observable, of } from 'rxjs';
 import {
   Answer,
   Question,
@@ -42,7 +42,7 @@ export class QuestionService {
   selectedQuestionNumberSubject = new BehaviorSubject<number | null>(null);
   selectedQuestionNumber$ = this.selectedQuestionNumberSubject.asObservable();
 
-  currentIndex : number = 0;
+  currentIndex: number = 0;
 
   listChapter: Chapter[] = [
     {
@@ -108,48 +108,54 @@ export class QuestionService {
     this.chapterSelectedSubject.next(chapterId);
   }
 
-  loadQuestions(chapterId?: number): Question[] {
-    const storedQuestions = localStorage.getItem('list-question');
-    if (storedQuestions) {
-      this.listQuestion = JSON.parse(storedQuestions);
-    } else {
-      this.apiService.getQuestions().subscribe((data) => {
-        this.listQuestion = data;
-        localStorage.setItem('list-question', JSON.stringify(data));
+  // loadQuestions(chapterId?: number): Question[] {
+  //   const storedQuestions = localStorage.getItem('list-question');
+  //   if (storedQuestions) {
+  //     this.listQuestion = JSON.parse(storedQuestions);
+  //   } else {
+  //     this.apiService.getQuestions().subscribe((data) => {
+  //       this.listQuestion = data;
+  //       localStorage.setItem('list-question', JSON.stringify(data));
+  //       //this.cdRef.detectChanges();
+  //     });
+  //   }
+
+  //   if (chapterId !== null && chapterId !== 0) {
+  //     if (chapterId === 7) {
+  //       const listQuestionCritical = this.listQuestion.filter(
+  //         (q) => q.isCritical === true,
+  //       );
+  //       this.listQuestion = listQuestionCritical;
+  //       return this.listQuestion;
+  //     }
+
+  //     const listQuestionUpdated = this.listQuestion.filter(
+  //       (q) => q.chapterId === chapterId,
+  //     );
+
+  //     this.listQuestion = listQuestionUpdated;
+  //   }
+  //   return this.listQuestion;
+  // }
+
+  getCurrentQuestion(questionNumber: number): Question | undefined {
+    
+    if (this.listQuestion.length === 0) {
+      this.loadQuestionByChapterID().subscribe((questions) => {
+        if (questionNumber < 1 || questionNumber > questions.length) {
+          return undefined;
+        }
+        
       });
     }
 
-    if (chapterId !== null && chapterId !== 0) {
-      if (chapterId === 7) {
-        const listQuestionCritical = this.listQuestion.filter(
-          (q) => q.isCritical === true,
-        );
-        this.listQuestion = listQuestionCritical;
-        return this.listQuestion;
-      }
-
-      const listQuestionUpdated = this.listQuestion.filter(
-        (q) => q.chapterId === chapterId,
-      );
-
-      this.listQuestion = listQuestionUpdated;
-    }
-    return this.listQuestion;
-  }
-
-  getCurrentQuestion(questionNumber: number): Question | undefined {
-    if (this.listQuestion.length === 0) {
-      this.loadQuestions();
-    }
-    if (questionNumber < 1 || questionNumber > this.listQuestion.length) {
-      return undefined;
-    }
     return (this.currentQuestion =
       this.listQuestion.find((q) => q.questionNumber === questionNumber) ||
       undefined);
   }
 
   setCurrentQuestion(question: Question) {
+    
     if (this.currentQuestionSelectedSubject.value == question) {
       return;
     }
@@ -211,15 +217,44 @@ export class QuestionService {
     this.selectedQuestionNumberSubject.next(questionNumber);
   }
 
-  setCurrentIndex(index: number){
+  setCurrentIndex(index: number) {
     this.currentIndex = index;
   }
 
-  getCurrentIndex(){
+  getCurrentIndex() {
     return this.currentIndex;
   }
 
-  getListChapter(){
+  getListChapter() {
     return this.listChapter;
+  }
+
+  loadQuestionByChapterID(chapterID?: number): Observable<Question[]> {
+    const storedQuestions = localStorage.getItem('list-question');
+    if (storedQuestions) {
+      let questions: Question[] = JSON.parse(storedQuestions);
+      questions = this.filterQuestions(questions, chapterID);
+      return of(questions);
+    }
+
+    return this.apiService.getQuestions().pipe(
+      map((data) => {
+        localStorage.setItem('list-question', JSON.stringify(data));
+
+        return this.filterQuestions(data, chapterID);
+      }),
+    );
+  }
+
+  filterQuestions(questions: Question[], chapterId?: number): Question[] {
+    if (!chapterId || chapterId === 0) {
+      return questions;
+    }
+
+    if (chapterId === 7) {
+      return questions.filter((q) => q.isCritical);
+    }
+
+    return questions.filter((q) => q.chapterId === chapterId);
   }
 }

@@ -22,11 +22,11 @@
       @for (ans of currentQuestion.answers; track ans.id; let i = $index) {
             <div
               class="answer-item answer"
-              [class.answered]="selectedAnswerId === ans.id && ans.answered"
+              [class.answered]="selectedAnswerId === ans.id"
               (click)="submitAnswer(ans)"
             >
               <span class="">
-               
+                <!-- {{ans.id}} -- -- Ans ID: {{ selectedAnswerId}}  -->
                 {{ i + 1 }}.
                 {{ ans.content }}
               </span>
@@ -43,11 +43,11 @@
         color="primary"
         class="btn btn-primary quiz-btn mt-4 pointer"
         (click)="previous()"
-        *ngIf="index > 0"
+      
       >
         <span class="next-text text-primary d-flex align-items-center gap-1">
           <mat-icon>arrow_back</mat-icon>
-          <span> Cấu trước</span>
+          <span> Câu trước</span>
         </span>
       </button>
 

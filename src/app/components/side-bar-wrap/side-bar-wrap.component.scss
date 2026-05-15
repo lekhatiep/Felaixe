@@ -198,3 +198,8 @@
     box-shadow: var(--shadow-md);
 }
 
+.question-number.answered {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}

@@ -16,9 +16,8 @@ export class SideBarWrapComponent implements OnInit {
   @Input({required: true}) mode : string = 'study';
   private examService = inject(ExamService);
 
-  ngOnInit(): void {
-   
-  
+  ngOnInit(): void {   
      console.log(this.mode);
   }
+
 }

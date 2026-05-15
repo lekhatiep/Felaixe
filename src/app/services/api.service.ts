@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
 import {
@@ -6,6 +6,8 @@ import {
   QuestionResponseModel,
 } from '../components/question-card/model/question.model';
 import { AppConstants } from '../constants/app.constants';
+import { SubmissionExam } from '../models/submissionExam.model';
+import { ResultExam } from '../models/resultExam.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -18,7 +20,7 @@ export class ApiService {
     return this.httpClient
       .get<
         Question[]
-      >(`${this.apiUrl}/Questions/GetQuestionsByCategoryId?CategoryId=1`)
+      >(`${this.apiUrl}/api/Questions/GetQuestionsByCategoryId?CategoryId=1`)
       .pipe(
         map((response) => {
           this.questionResponse.set(response);
@@ -58,5 +60,24 @@ export class ApiService {
           return throwError(() => error);
         }),
       );
+  }
+
+  postExam(data: SubmissionExam) {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.httpClient
+      .post<ResultExam>(`${this.apiUrl}/api/Questions/SubmitExam`, data, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching questions:', error);
+          return throwError(() => error);
+        }),
+      );
+      // .subscribe({
+      //   next: (response) => {
+      //     console.log('Success:', response)
+      //   },
+      //   error: (err) => console.error('Error:', err),
+      //   complete: () => console.log('Request finished'),
+      // });
   }
 }

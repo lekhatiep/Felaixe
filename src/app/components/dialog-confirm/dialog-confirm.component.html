@@ -1,0 +1,28 @@
+<!-- <h2 mat-dialog-title>  {{data.title}}</h2>
+<mat-dialog-content>
+  {{data.content}}
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton mat-dialog-close>No</button>
+  <button matButton mat-dialog-close cdkFocusInitial>Ok</button>
+</mat-dialog-actions> -->
+<div class="quiz-modal">
+  <div class="quiz-modal-dialog">
+    <div class="quiz-modal-header">
+      <h5>{{ data.title }}</h5>
+    </div>
+    <div class="quiz-modal-body">
+      <p>
+        {{ data.content }}
+      </p>
+    </div>
+    <div class="quiz-modal-footer" mat-dialog-actions>
+      <button [mat-dialog-close]="true" class="btn-primary">
+        <i class="fas fa-check"></i> Có, nộp bài
+      </button>
+      <button class="btn-secondary">
+        <span> <mat-icon>close</mat-icon>Chưa, làm tiếp </span>
+      </button>
+    </div>
+  </div>
+</div>

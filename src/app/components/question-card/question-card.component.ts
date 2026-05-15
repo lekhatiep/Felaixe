@@ -1,4 +1,10 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,27 +19,31 @@ import { ApiService } from '../../services/api.service';
 import { Answer, Question, QuizState } from './model/question.model';
 import { QuestionService } from '../../services/question.service';
 import { AppConstants } from '../../constants/app.constants';
-import { QuestionImageComponent } from "../question-image/question-image/question-image.component";
+import { QuestionImageComponent } from '../question-image/question-image/question-image.component';
 import { ExamService } from '../../services/exam.service';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-question-card',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatIconModule, QuestionImageComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    QuestionImageComponent,
+  ],
   templateUrl: './question-card.component.html',
   styleUrl: './question-card.component.scss',
 })
 export class QuestionCardComponent implements OnInit {
   questionForm!: FormGroup;
 
-  private apiService = inject(ApiService);
   private questionService = inject(QuestionService);
-  private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
-  
+
   isCorrect: boolean | null = null;
   listQuestion: Question[] = [];
-  index: number =  this.questionService.getCurrentIndex();
+  index: number = this.questionService.getCurrentIndex();
   chapterId: number | null = 0;
   answered: boolean = false;
   listBookmark: Question[] = [];
@@ -44,7 +54,9 @@ export class QuestionCardComponent implements OnInit {
   url_image_question = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
   hasImage: boolean = true;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder
+  ) {}
 
   ngOnInit() {
     this.questionForm = this.fb.group({
@@ -55,17 +67,18 @@ export class QuestionCardComponent implements OnInit {
     const chapterSub = this.questionService.chapterSelected$.subscribe({
       next: (chapterId) => {
         this.chapterId = chapterId;
-        this.loadQuestion();
+        //this.loadQuestion();
         this.loadQuizState();
       },
     });
 
     this.questionService.currentQuestionSelected$
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef), delay(0))
       .subscribe({
         next: (question) => {
           if (question) {
             this.currentQuestion = question;
+
             this.index = this.questionService.getCurrentIndex();
             if (question.isAnswered) {
               const answer = question.answers?.find(
@@ -85,8 +98,7 @@ export class QuestionCardComponent implements OnInit {
       chapterSub.unsubscribe();
     });
 
-    console.log("render card");
-    
+    console.log('render card');
   }
 
   bookmarkQuestion() {
@@ -128,10 +140,15 @@ export class QuestionCardComponent implements OnInit {
 
   loadQuestion() {
     this.resetDefault();
-    this.listQuestion = this.questionService.loadQuestions(
-      this.chapterId ?? -1,
-    );
-   
+    // this.listQuestion = this.questionService.loadQuestions(
+    //   this.chapterId ?? -1,
+    // );
+    this.questionService
+      .loadQuestionByChapterID(this.chapterId ?? -1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.listQuestion = data;
+      });
   }
 
   checkAnswer(answer: Answer) {
@@ -190,8 +207,8 @@ export class QuestionCardComponent implements OnInit {
     }
   }
 
-  onErrorLoadImage(img: HTMLImageElement){
+  onErrorLoadImage(img: HTMLImageElement) {
     this.hasImage = false;
-    console.log("no image")
+    console.log('no image');
   }
 }

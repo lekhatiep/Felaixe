@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, Observable, of } from 'rxjs';
 import { AppConstants } from '../constants/app.constants';
 import {
   Answer,
@@ -7,6 +7,8 @@ import {
   QuizState,
 } from '../components/question-card/model/question.model';
 import { ApiService } from './api.service';
+import { SubmissionExam } from '../models/submissionExam.model';
+import { ResultExam } from '../models/resultExam.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +44,7 @@ export class ExamService {
   quizState: QuizState | undefined;
 
   currentIndex: number = 0;
+  submissionExam: SubmissionExam | undefined;
 
   setCurrentPart(part: number) {
     this.currentPartSubject.next(part);
@@ -55,9 +58,20 @@ export class ExamService {
     return this.exercise_mode;
   }
 
-  loadExamQuestions() {
-    this.refreshTempListAnswered();
-    return this.apiService.getExamQuestions();
+  loadExamQuestions(): Observable<Question[]> {
+    //this.refreshTempListAnswered();
+    const storedQuestions = localStorage.getItem('list-exam-question');
+    if (storedQuestions) {
+      let questions: Question[] = JSON.parse(storedQuestions);
+
+      return of(questions);
+    }
+    return this.apiService.getExamQuestions().pipe(
+      map((data) => {
+        localStorage.setItem('list-exam-question', JSON.stringify(data));
+        return data;
+      }),
+    );
   }
 
   getCurrentQuestion(questionNumber: number): Question | undefined {
@@ -117,7 +131,10 @@ export class ExamService {
       return;
     }
     this.listQuizState.push(quizState);
-    localStorage.setItem('list-exam-quiz-state', JSON.stringify(this.listQuizState));
+    localStorage.setItem(
+      'list-exam-quiz-state',
+      JSON.stringify(this.listQuizState),
+    );
     this.changedQuizStateSubject.next(true);
   }
 
@@ -142,7 +159,61 @@ export class ExamService {
     return this.currentIndex;
   }
 
-  refreshTempListAnswered(){
+  refreshTempListAnswered() {
     localStorage.removeItem('list-exam-quiz-state');
+  }
+
+  submitExam() {
+    const storedQuestions = localStorage.getItem('list-exam-question');
+
+    if (storedQuestions) {
+      let questions: Question[] = JSON.parse(storedQuestions);
+      const questionIDs: number[] = questions.map((q) => q.questionNumber);
+
+      const listQuizAnswerString = localStorage.getItem('list-exam-quiz-state');
+
+      if (listQuizAnswerString) {
+        let listAnswer: QuizState[] = JSON.parse(listQuizAnswerString);
+
+        const answers: Record<number, number> = {};
+
+        listAnswer.map((a) => {
+          answers[a.questionNumber] = a.answerId;
+        });
+
+        console.log(questionIDs, answers);
+
+        const submissionExam: SubmissionExam = {
+          questionIds: questionIDs,
+          answers: answers,
+        };
+
+        this.apiService.postExam(submissionExam).subscribe({
+          next: (response) => {
+            //console.log('Success:', response);
+            alert(response.IsPassed ? 'Pass roi' : 'Rot thi lai bai moi');
+            this.saveHistoryExam(response);
+            this.resetExamAnswers();
+          },
+          error: (err) => console.error('Error:', err),
+          complete: () => console.log('Request finished'),
+        });
+      }
+    }
+  }
+
+  saveHistoryExam(data: ResultExam){
+    localStorage.setItem('history-exam', JSON.stringify(data))
+  }
+
+  loadHistoryExam(){
+    const storedHistoryExam = localStorage.getItem('history-exam')
+    if(storedHistoryExam){
+      return  JSON.parse(storedHistoryExam);
+    }
+  }
+  resetExamAnswers(){
+    localStorage.removeItem('list-exam-quiz-state');
+    window.location.reload();
   }
 }
