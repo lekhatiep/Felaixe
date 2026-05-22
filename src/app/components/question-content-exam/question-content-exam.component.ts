@@ -131,13 +131,9 @@ export class QuestionContentExamComponent {
     //this.isCorrect = null;
   }
 
-  submitExam() {
-    //TODO: Implement submit exam logic here
-  }
-
   loadQuizState() {
-    console.log('load quiz state');
-    console.log(this.currentQuestion);
+    // console.log('load quiz state');
+    // console.log(this.currentQuestion);
 
     if (this.currentQuestion) {
       this.quizState = this.examService.getQuizState(

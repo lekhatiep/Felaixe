@@ -1,6 +1,10 @@
 export interface ResultExam {
-    Score: number;
-    IsPassed: boolean;
-    WrongQuestionIds: number[];
-    ExamDate: Date
+    id: number;
+    score: number;
+    isPassed: boolean;
+    wrongQuestionIds: number[];
+    questionIds: number[];
+    correctQuestionIds: number[];
+    examDate: Date;
+    spentTime: number;
 }

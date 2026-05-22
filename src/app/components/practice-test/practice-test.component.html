@@ -1,17 +1,34 @@
 <div class="exam-number-selection">
   <div class="exam-number-selection-header">
     <!-- <button (click)="sendMessage()">Send Message</button> -->
-    <button id="backToExamTypeBtn" class="btn-back-exam-type" (click) = "onBack()">
-      <i class="fas fa-arrow-left"></i>
+    <button
+      id="backToExamTypeBtn"
+      class="btn-back-exam-type"
+      (click)="onBack()"
+    >
+      <mat-icon>arrow_left</mat-icon>
       Quay lại chọn hạng
     </button>
-    <h3 class="exam-number-title">
+    <h4 class="exam-number-title">
       <i class="fas fa-list-ol"></i>
       Chọn đề thi - <span id="selectedExamTypeLabel">Hạng B</span>
-    </h3>
+    </h4>
   </div>
   <div class="exam-numbers-grid">
-    <app-practice-test-card [numberQuestion]="60" [minutes]="30"></app-practice-test-card>
-    
+    @switch (typeExamB) {
+      @case ("B_old") {
+        <app-practice-test-card
+          [totalQuestion]="totalQuestion"
+          [minutes]="timeExam"
+        ></app-practice-test-card>
+      }
+
+      @case ("B_new") {
+        <app-practice-test-card
+          [totalQuestion]="totalQuestion"
+          [minutes]="timeExam"
+        ></app-practice-test-card>
+      }
+    }
   </div>
 </div>

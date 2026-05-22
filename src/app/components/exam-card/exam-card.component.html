@@ -2,29 +2,30 @@
           class="exam-type-card exam-card-pho-bien"
           data-exam-type="Hạng B"
         >
-          <span class="exam-badge-pho-bien">Phổ biến</span>
+          <span class="exam-badge-pho-bien">{{numberQuestion == 60 ? 'Sau 1/7/2026' : 'CŨ Phổ biến'}}</span>
           <div class="exam-card-icon">
-            <i class="fas fa-car"></i>
+            <mat-icon>directions_car</mat-icon>
           </div>
           <div class="exam-card-content">
             <h4 class="exam-card-title">Hạng B</h4>
             <div class="exam-card-info">
               <span class="exam-info-item">
-                <i class="fas fa-question-circle"></i>
+                <mat-icon>help</mat-icon>
                 {{numberQuestion}} câu
               </span>
               <span class="exam-info-item">
-                <i class="fas fa-clock"></i>
+                <mat-icon>clock</mat-icon>
                 {{minutes}} phút
               </span>
             </div>
             <div class="exam-card-description">
-              <i class="fas fa-info-circle"></i>
-              Xe 4 bánh chở người đến 8 chỗ, xe tải đến 3.5 tấn, rơ moóc đến
-              750kg
+              <mat-icon>info</mat-icon>
+              <span> Xe 4 bánh chở người đến 8 chỗ, xe tải đến 3.5 tấn, rơ moóc đến
+              750kg</span>
+             
             </div>
             <div class="exam-card-pass">
-              <i class="fas fa-trophy"></i>
+              <mat-icon>star_rate</mat-icon>
               Đậu: {{score}}/{{numberQuestion}}
             </div>
             <!-- <span class="exam-badge-diemliet">

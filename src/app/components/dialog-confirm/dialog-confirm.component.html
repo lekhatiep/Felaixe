@@ -18,11 +18,13 @@
     </div>
     <div class="quiz-modal-footer" mat-dialog-actions>
       <button [mat-dialog-close]="true" class="btn-primary">
-        <i class="fas fa-check"></i> Có, nộp bài
+        {{ data.confirmBtnText }}
       </button>
-      <button class="btn-secondary">
-        <span> <mat-icon>close</mat-icon>Chưa, làm tiếp </span>
-      </button>
+      @if (!data.isConfirmDialog) {
+        <button class="btn-secondary">
+          <span> <mat-icon>close</mat-icon> {{ data.cancelBtnText }} </span>
+        </button>
+      }
     </div>
   </div>
 </div>

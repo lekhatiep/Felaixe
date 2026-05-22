@@ -41,6 +41,7 @@ export class SideBarExamComponent {
   currentIndex: number = 0;
   answer: Answer | undefined;
   listQuizState: QuizState[] = [];
+  currentTime: number = 0;
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: any) {
@@ -85,6 +86,12 @@ export class SideBarExamComponent {
           }
         },
       });
+
+      this.examService.timer$.subscribe((seconds)=> {
+        if(seconds == 0){
+          this.openDialogTimeOut();
+        }
+      })
 
     this.currentIndex = this.examService.getCurrentIndex();
   }
@@ -157,12 +164,34 @@ export class SideBarExamComponent {
       data: {
         title: 'Xác nhận nộp bài',
         content: 'Sau khi nộp bạn sẽ không thể thay đổi đáp án.',
+        confirmBtnText: 'Có, nộp bài',
+        cancelBtnText: 'Chưa, làm tiếp'
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         alert('Nộp bài thành công');
+        this.examService.submitExam();
+      }
+    });
+  }
+
+  openDialogTimeOut(){
+   
+     const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      width: '350px',
+      data: {
+        title: 'Thông báo',
+        content: 'Đã hết giờ làm bài.',
+        confirmBtnText: 'OK',
+        cancelBtnText: 'Cancel',
+        isConfirmDialog: true
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
         this.examService.submitExam();
       }
     });

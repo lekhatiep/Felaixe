@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ExamCardComponent } from "../exam-card/exam-card.component";
+import { ExamService } from '../../services/exam.service';
 
 @Component({
   selector: 'app-practice',
@@ -9,5 +10,10 @@ import { ExamCardComponent } from "../exam-card/exam-card.component";
   styleUrl: './practice.component.scss'
 })
 export class PracticeComponent {
+  private examService = inject(ExamService);
 
+  nextStep(typeExamB : 'B_new' | 'B_old' ){
+    this.examService.setCurrentPart(2);
+    this.examService.setCurrentTypeB(typeExamB)
+  }
 }

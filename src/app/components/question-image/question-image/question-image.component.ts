@@ -14,14 +14,37 @@ export class QuestionImageComponent {
   baseUrl: string = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
 
   currentSrc!: string;
-  isVisible: boolean = true;
+  isVisible: boolean = false;
 
   ngOnInit() {
     this.setImage();
   }
 
   ngOnChanges() {
-    this.setImage();
+   
+    if (!this.questionId) {
+      this.isVisible = false;
+      return; 
+    }
+    
+    this.currentSrc = `${this.baseUrl}/q${this.questionId}.jpg`;
+
+    this.checkImage();
+  }
+
+  checkImage(){
+
+
+    const img = new Image();
+    img.onload = () =>{
+      this.isVisible = true;
+    };
+
+    img.onerror = () => {
+      this.isVisible = false;
+    }
+
+    img.src = this.currentSrc;
   }
 
   setImage() {

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, Subject } from 'rxjs';
 import { AppConstants } from '../constants/app.constants';
 import {
   Answer,
@@ -45,6 +45,16 @@ export class ExamService {
 
   currentIndex: number = 0;
   submissionExam: SubmissionExam | undefined;
+
+  timerSubject = new Subject<number>(); //không emit giá trị mặc định chỉ emit khi .next()
+  timer$ = this.timerSubject.asObservable();
+
+  typeExamB: 'B_new' | 'B_old' = 'B_old';
+  currentStepSubject = new BehaviorSubject<number>(0);
+  currentStep$ = this.currentStepSubject.asObservable();
+
+  currentTypeExamBSubject = new BehaviorSubject<'B_new' | 'B_old'>('B_old');
+  currentTypeExamB$ = this.currentTypeExamBSubject.asObservable();
 
   setCurrentPart(part: number) {
     this.currentPartSubject.next(part);
@@ -164,6 +174,8 @@ export class ExamService {
   }
 
   submitExam() {
+    alert('Submited');
+
     const storedQuestions = localStorage.getItem('list-exam-question');
 
     if (storedQuestions) {
@@ -181,17 +193,19 @@ export class ExamService {
           answers[a.questionNumber] = a.answerId;
         });
 
-        console.log(questionIDs, answers);
+        //console.log(questionIDs, answers);
 
         const submissionExam: SubmissionExam = {
           questionIds: questionIDs,
           answers: answers,
         };
-
+        //return;
         this.apiService.postExam(submissionExam).subscribe({
           next: (response) => {
             //console.log('Success:', response);
-            alert(response.IsPassed ? 'Pass roi' : 'Rot thi lai bai moi');
+            alert(response.isPassed ? 'Pass roi' : 'Rot thi lai bai moi');
+            console.log('response', response);
+
             this.saveHistoryExam(response);
             this.resetExamAnswers();
           },
@@ -202,18 +216,39 @@ export class ExamService {
     }
   }
 
-  saveHistoryExam(data: ResultExam){
-    localStorage.setItem('history-exam', JSON.stringify(data))
+  saveHistoryExam(data: ResultExam) {
+    const storedHistoryExam = localStorage.getItem('history-exam');
+    if (storedHistoryExam) {
+      var listHis : ResultExam[] = JSON.parse(storedHistoryExam);
+      listHis.push(data);
+      localStorage.setItem('history-exam', JSON.stringify(listHis));
+      return;
+    }
+    const listResult: ResultExam[] = [];
+    listResult.push(data);
+    localStorage.setItem('history-exam', JSON.stringify(listResult));
   }
 
-  loadHistoryExam(){
-    const storedHistoryExam = localStorage.getItem('history-exam')
-    if(storedHistoryExam){
-      return  JSON.parse(storedHistoryExam);
+  loadHistoryExam() {
+    const storedHistoryExam = localStorage.getItem('history-exam');
+    if (storedHistoryExam) {
+      return JSON.parse(storedHistoryExam);
     }
   }
-  resetExamAnswers(){
+  resetExamAnswers() {
     localStorage.removeItem('list-exam-quiz-state');
-    window.location.reload();
+    //window.location.reload();
+  }
+
+  setTimer(seconds: number) {
+    this.timerSubject.next(seconds);
+  }
+
+  setCurrentTypeB(typeExamB: 'B_new' | 'B_old') {
+    this.currentTypeExamBSubject.next(typeExamB);
+  }
+
+  setCurrentStep(step: number) {
+    this.currentStepSubject.next(step);
   }
 }

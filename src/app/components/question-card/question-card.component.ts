@@ -53,6 +53,7 @@ export class QuestionCardComponent implements OnInit {
   quizState: QuizState | undefined = undefined;
   url_image_question = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
   hasImage: boolean = true;
+  totalQuestion: number = 0;
 
   constructor(
     private fb: FormBuilder
@@ -67,7 +68,7 @@ export class QuestionCardComponent implements OnInit {
     const chapterSub = this.questionService.chapterSelected$.subscribe({
       next: (chapterId) => {
         this.chapterId = chapterId;
-        //this.loadQuestion();
+        this.loadQuestion();
         this.loadQuizState();
       },
     });
@@ -147,7 +148,8 @@ export class QuestionCardComponent implements OnInit {
       .loadQuestionByChapterID(this.chapterId ?? -1)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
-        this.listQuestion = data;
+        //this.listQuestion = data;
+        this.totalQuestion = data.length;
       });
   }
 
@@ -188,10 +190,6 @@ export class QuestionCardComponent implements OnInit {
   resetDefault() {
     //this.index = 0;
     this.isCorrect = null;
-  }
-
-  submitExam() {
-    //TODO: Implement submit exam logic here
   }
 
   loadQuizState() {

@@ -3,7 +3,7 @@
   @if (currentQuestion) {
     <div class="card-header d-flex justify-content-between align-items-center">
       <span class="fw-semibold">
-        Câu {{ currentQuestion.questionNumber }} / {{ listQuestion.length }}
+        Câu {{ currentQuestion.questionNumber }} / {{ totalQuestion }}
       </span>
 
       <button
@@ -75,7 +75,7 @@
         </div>
       } @else {
         <!-- Answers -->
-        <form [formGroup]="questionForm" (ngSubmit)="submitExam()">
+        <form [formGroup]="questionForm" >
           <div class="answer-list">
             <label
               *ngFor="let ans of currentQuestion.answers"

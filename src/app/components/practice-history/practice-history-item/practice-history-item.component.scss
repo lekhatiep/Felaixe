@@ -1,0 +1,121 @@
+.history-item {
+    background: var(--bg-white);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.history-item-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.history-exam-type {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.history-exam-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 4px 12px;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+}
+
+.history-status.failed {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: var(--error-color);
+}
+
+.history-status.passed {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: var(--success-color);
+}
+
+.history-item-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.history-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.history-item-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.history-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.history-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.history-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.history-stat-value.red {
+    color: var(--error-color);
+}
+
+.history-item-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-view-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}

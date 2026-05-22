@@ -37,7 +37,7 @@ export class ExamComponent implements OnInit {
   message = '';
 
   ngOnInit(): void {
-    this.step = this.step_3;
+    this.step = 1;
 
     this.examService.currentPart$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((part)=>{
       if(part > 0){
@@ -46,6 +46,14 @@ export class ExamComponent implements OnInit {
         this.step = part;
       }
     })
+
+    // this.examService.currentStep$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((step)=>{
+    //   if(step > 0){
+    //     console.log(step);
+        
+    //     this.step = step;
+    //   }
+    // })
   }
 
   nextStep(step: number) {

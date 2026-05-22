@@ -5,9 +5,7 @@
   </div>
   @switch (step) {
     @case (step_1) {
-      <div (click)="nextStep(step_2)">
         <app-practice />
-      </div>
     }
     @case (step_2) {
         <app-practice-test (backStep_1)="handleBackStep($event)" />
