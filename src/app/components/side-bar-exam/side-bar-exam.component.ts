@@ -42,6 +42,8 @@ export class SideBarExamComponent {
   answer: Answer | undefined;
   listQuizState: QuizState[] = [];
   currentTime: number = 0;
+  isEndExam: boolean = false;
+  startTime!: Date;
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: any) {
@@ -51,7 +53,7 @@ export class SideBarExamComponent {
   }
 
   ngOnInit() {
-    //this.listQuestion = this.examService.loadExamQuestions();
+    this.startTime = new Date();
 
     this.loadExamQuestion();
 
@@ -87,11 +89,19 @@ export class SideBarExamComponent {
         },
       });
 
-      this.examService.timer$.subscribe((seconds)=> {
-        if(seconds == 0){
+    this.examService.timer$
+      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .subscribe((seconds) => {
+        if (seconds == 0) {
           this.openDialogTimeOut();
         }
-      })
+      });
+
+    this.examService.endCurrentExam$
+      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .subscribe((rs) => {
+        this.isEndExam = rs;
+      });
 
     this.currentIndex = this.examService.getCurrentIndex();
   }
@@ -165,34 +175,38 @@ export class SideBarExamComponent {
         title: 'Xác nhận nộp bài',
         content: 'Sau khi nộp bạn sẽ không thể thay đổi đáp án.',
         confirmBtnText: 'Có, nộp bài',
-        cancelBtnText: 'Chưa, làm tiếp'
+        cancelBtnText: 'Chưa, làm tiếp',
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         alert('Nộp bài thành công');
-        this.examService.submitExam();
+        this.examService.submitExam(this.startTime);
       }
     });
   }
 
-  openDialogTimeOut(){
-   
-     const dialogRef = this.dialog.open(DialogConfirmComponent, {
+  openDialogTimeOut() {
+    (document.activeElement as HTMLElement)?.blur();
+
+    const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      autoFocus: true,
       width: '350px',
       data: {
         title: 'Thông báo',
         content: 'Đã hết giờ làm bài.',
         confirmBtnText: 'OK',
         cancelBtnText: 'Cancel',
-        isConfirmDialog: true
+        isConfirmDialog: true,
       },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
+
       if (result) {
-        this.examService.submitExam();
+        this.examService.submitExam(this.startTime);
       }
     });
   }

@@ -21,7 +21,7 @@
         {{ data.confirmBtnText }}
       </button>
       @if (!data.isConfirmDialog) {
-        <button class="btn-secondary">
+        <button class="btn-secondary" [mat-dialog-close]="false">
           <span> <mat-icon>close</mat-icon> {{ data.cancelBtnText }} </span>
         </button>
       }

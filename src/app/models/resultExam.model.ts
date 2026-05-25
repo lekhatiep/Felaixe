@@ -6,5 +6,5 @@ export interface ResultExam {
     questionIds: number[];
     correctQuestionIds: number[];
     examDate: Date;
-    spentTime: number;
+    durationSeconds: number;
 }

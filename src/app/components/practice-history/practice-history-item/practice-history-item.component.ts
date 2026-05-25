@@ -23,18 +23,32 @@ export class PracticeHistoryItemComponent implements OnInit {
   totalWrongNumberQuestion: number = 0;
   dateExam!: Date;
   dateExamString: string = '';
+  dateTimeSpentStr: string = '';
 
   ngOnInit(): void {
+    console.log(this.resultItem);
+    
     this.score = this.resultItem.score;
     this.totalQuestion = this.resultItem.questionIds.length;
     // this.timeSpent = this.resultItem.examDate.getDay()
     this.totalCorrectQuestion = this.resultItem.correctQuestionIds.length;
     this.totalWrongNumberQuestion = this.resultItem.wrongQuestionIds.length;
     this.dateExam = this.resultItem.examDate;
-    this.dateExamString = formatDate(this.resultItem.examDate, 'hh:mm:ss dd/MM/YYY', this.locale)
+    this.dateExamString = formatDate(this.resultItem.examDate, 'hh:mm:ss dd/MM/YYY', this.locale);
+    this.dateTimeSpentStr = this.formatDuration(this.resultItem.durationSeconds);
+    
   }
 
   viewExamDetail(id: number){
 
   }
+
+  formatDuration(totalSeconds: number): string {
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  console.log(totalSeconds, minutes, seconds);
+  
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
 }

@@ -17,7 +17,10 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { QuestionImageComponent } from '../question-image/question-image/question-image.component';
-import { delay } from 'rxjs';
+import { delay, distinctUntilChanged, Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
+import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
 
 @Component({
   selector: 'app-question-content-exam',
@@ -32,6 +35,7 @@ export class QuestionContentExamComponent {
   private apiService = inject(ApiService);
   private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
+  readonly dialog = inject(MatDialog);
 
   isCorrect: boolean | null = null;
   listQuestion: Question[] = [];
@@ -45,6 +49,9 @@ export class QuestionContentExamComponent {
   url_image_question = AppConstants.URL_CLOUDINARY_IMG_QUESTION;
   hasImage: boolean = true;
   quizState: QuizState | undefined = undefined;
+  isLeave: boolean = false;
+  isEndExam: boolean = false;
+  
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
@@ -70,15 +77,19 @@ export class QuestionContentExamComponent {
               } else {
                 this.resetDefault();
               }
-
-             
             });
 
-             this.loadQuizState();
+            this.loadQuizState();
           }
         },
       });
 
+    this.examService.setEndCurrentExam(false);
+    this.examService.endCurrentExam$
+      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .subscribe((rs) => {
+        this.isEndExam = rs;
+      });
     console.log('render card exam');
   }
 
@@ -149,5 +160,9 @@ export class QuestionContentExamComponent {
   onErrorLoadImage(img: HTMLImageElement) {
     this.hasImage = false;
     console.log('no image');
+  }
+
+  ngOnDestroy() {
+    console.log('Leaving Route A');
   }
 }

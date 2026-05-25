@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { ExamService } from '../../services/exam.service';
-import { MatIcon } from "@angular/material/icon";
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-practice-test-progress',
@@ -14,12 +14,13 @@ export class PracticeTestProgressComponent implements OnInit {
   private examService = inject(ExamService);
   displayTimer: string = '';
   widthProgress: number = 100;
-  isDanger : boolean = false;
+  isDanger: boolean = false;
+  countDownTimerID: number = 0;
 
   ngOnInit(): void {
     if (this.isStarted == true) {
     }
-    this.timer(20); // 30p * 60
+    this.timer(15); // 30p * 60
   }
 
   timer(totalSeconds: number) {
@@ -29,19 +30,18 @@ export class PracticeTestProgressComponent implements OnInit {
     let seconds = totalSeconds % 60;
     const prefix = minute < 10 ? '0' : '';
 
-    const countDownTimer = setInterval(() => {
-      
-      if(seconds != 0){
-        seconds --;
-      }else{
-        seconds = 59
+    this.countDownTimerID = setInterval(() => {
+      if (seconds != 0) {
+        seconds--;
+      } else {
+        seconds = 59;
       }
       totalSeconds--;
-      this.widthProgress = (totalSeconds) * 100 / initSeconds;
-      
-      if(this.widthProgress < 30){
+      this.widthProgress = (totalSeconds * 100) / initSeconds;
+
+      if (this.widthProgress < 30) {
         console.log('warning');
-        
+
         this.isDanger = true;
       }
 
@@ -54,10 +54,16 @@ export class PracticeTestProgressComponent implements OnInit {
       this.displayTimer = `${prefix}${Math.floor(totalSeconds / 60)} : ${textSec}`;
 
       if (totalSeconds === 0 && Math.floor(totalSeconds / 60) == 0) {
-        //console.log('FINISHED');
+        console.log('FINISHED');
         this.examService.setTimer(totalSeconds);
-        clearInterval(countDownTimer);
+        clearInterval(this.countDownTimerID);
       }
     }, 1000);
+  }
+
+  ngOnDestroy() {
+    console.log(this.countDownTimerID);
+    
+    clearInterval(this.countDownTimerID);
   }
 }

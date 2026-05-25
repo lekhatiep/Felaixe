@@ -17,9 +17,6 @@ export class PracticeHistoryComponent  implements OnInit{
 
   ngOnInit(): void {
     this.listResult = this.examService.loadHistoryExam();
-
-    console.log(this.listResult);
-    console.log(Array.isArray(this.listResult));
   }
   
 }

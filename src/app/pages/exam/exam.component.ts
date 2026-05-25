@@ -5,8 +5,12 @@ import { PracticeTestProgressComponent } from '../../components/practice-test-pr
 import { PracticeTestResultComponent } from '../../components/practice-test-result/practice-test-result.component';
 import { PracticeHistoryComponent } from '../../components/practice-history/practice-history.component';
 import { ExamService } from '../../services/exam.service';
-import { QuestionContainerComponent } from "../../components/question-container/question-container.component";
+import { QuestionContainerComponent } from '../../components/question-container/question-container.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
+import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
+import { Observable, tap } from 'rxjs';
+import { DialogConfirmComponent } from '../../components/dialog-confirm/dialog-confirm.component';
 
 @Component({
   selector: 'app-exam',
@@ -17,14 +21,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     PracticeTestProgressComponent,
     PracticeTestResultComponent,
     PracticeHistoryComponent,
-    QuestionContainerComponent
-],
+    QuestionContainerComponent,
+  ],
   templateUrl: './exam.component.html',
   styleUrl: './exam.component.scss',
 })
-export class ExamComponent implements OnInit {
+export class ExamComponent implements OnInit, HasUnsavedChanges {
   private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
+  private dialog = inject(MatDialog);
+
   showPractice: boolean = false;
   showProgress: boolean = false;
   showResult: boolean = false;
@@ -37,20 +43,25 @@ export class ExamComponent implements OnInit {
   message = '';
 
   ngOnInit(): void {
-    this.step = 1;
+    console.log('step' + this.step);
 
-    this.examService.currentPart$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((part)=>{
-      if(part > 0){
-        console.log(part);
-        
-        this.step = part;
-      }
-    })
+    //this.step = 1;
+    this.examService.setCurrentPart(this.step_1);
+
+    this.examService.currentPart$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((part) => {
+        if (part > 0) {
+          console.log(part);
+
+          this.step = part;
+        }
+      });
 
     // this.examService.currentStep$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((step)=>{
     //   if(step > 0){
     //     console.log(step);
-        
+
     //     this.step = step;
     //   }
     // })
@@ -69,5 +80,26 @@ export class ExamComponent implements OnInit {
   receiveMessage(msg: string) {
     console.log('back');
     this.message = msg;
+  }
+
+  canLeave(): Observable<boolean> {
+    (document.activeElement as HTMLElement)?.blur();
+
+    const dialogRef = this.dialog.open(DialogConfirmComponent, {
+      autoFocus: true,
+      width: '350px',
+      data: {
+        title: 'Thông báo',
+        content: 'Chưa hoàn thành bài thi. Bạn có muốn rời đi.',
+        confirmBtnText: 'Rời đi',
+        cancelBtnText: 'Tiếp tục bài làm',
+      },
+    });
+
+    return dialogRef.afterClosed().pipe(
+      tap((result) => {
+        this.examService.setEndCurrentExam(result);
+      }),
+    );
   }
 }

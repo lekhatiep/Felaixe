@@ -56,6 +56,9 @@ export class ExamService {
   currentTypeExamBSubject = new BehaviorSubject<'B_new' | 'B_old'>('B_old');
   currentTypeExamB$ = this.currentTypeExamBSubject.asObservable();
 
+  endCurrentExamSubject = new BehaviorSubject<boolean>(false);
+  endCurrentExam$ = this.endCurrentExamSubject.asObservable();
+
   setCurrentPart(part: number) {
     this.currentPartSubject.next(part);
   }
@@ -173,21 +176,28 @@ export class ExamService {
     localStorage.removeItem('list-exam-quiz-state');
   }
 
-  submitExam() {
-    alert('Submited');
+  submitExam(startTime : Date) {
+    //alert('Submited');
 
     const storedQuestions = localStorage.getItem('list-exam-question');
+    let submissionExam: SubmissionExam;
+    let answers: Record<number, number> = {};
 
     if (storedQuestions) {
       let questions: Question[] = JSON.parse(storedQuestions);
       const questionIDs: number[] = questions.map((q) => q.questionNumber);
 
+      submissionExam = {
+        questionIds: questionIDs,
+        answers: answers,
+        startTime: new Date(startTime),
+        endTime: new Date()
+      };
+
       const listQuizAnswerString = localStorage.getItem('list-exam-quiz-state');
 
       if (listQuizAnswerString) {
         let listAnswer: QuizState[] = JSON.parse(listQuizAnswerString);
-
-        const answers: Record<number, number> = {};
 
         listAnswer.map((a) => {
           answers[a.questionNumber] = a.answerId;
@@ -195,31 +205,36 @@ export class ExamService {
 
         //console.log(questionIDs, answers);
 
-        const submissionExam: SubmissionExam = {
-          questionIds: questionIDs,
-          answers: answers,
-        };
-        //return;
-        this.apiService.postExam(submissionExam).subscribe({
-          next: (response) => {
-            //console.log('Success:', response);
-            alert(response.isPassed ? 'Pass roi' : 'Rot thi lai bai moi');
-            console.log('response', response);
-
-            this.saveHistoryExam(response);
-            this.resetExamAnswers();
-          },
-          error: (err) => console.error('Error:', err),
-          complete: () => console.log('Request finished'),
-        });
+        submissionExam.answers = answers;
+      } else {
+        questions.map((q) => (answers[q.questionNumber] = 0));
       }
+
+      //return;
+      this.apiService.postExam(submissionExam).subscribe({
+        next: (response) => {
+          //console.log('Success:', response);
+          alert(response.isPassed ? 'Pass roi' : 'Rot thi lai bai moi');
+          console.log('response', response);
+
+          this.saveHistoryExam(response);
+          this.resetExamAnswers();
+        },
+        error: (err) => {
+          console.error('Error:', err);
+          alert("SERVER ERROR !!!")
+          this.resetExamAnswers();
+          //window.location.reload();
+        },
+        complete: () => console.log('Request finished'),
+      });
     }
   }
 
   saveHistoryExam(data: ResultExam) {
     const storedHistoryExam = localStorage.getItem('history-exam');
     if (storedHistoryExam) {
-      var listHis : ResultExam[] = JSON.parse(storedHistoryExam);
+      var listHis: ResultExam[] = JSON.parse(storedHistoryExam);
       listHis.push(data);
       localStorage.setItem('history-exam', JSON.stringify(listHis));
       return;
@@ -235,6 +250,7 @@ export class ExamService {
       return JSON.parse(storedHistoryExam);
     }
   }
+
   resetExamAnswers() {
     localStorage.removeItem('list-exam-quiz-state');
     //window.location.reload();
@@ -250,5 +266,9 @@ export class ExamService {
 
   setCurrentStep(step: number) {
     this.currentStepSubject.next(step);
+  }
+
+  setEndCurrentExam(isEnd: boolean) {
+    this.endCurrentExamSubject.next(isEnd);
   }
 }
