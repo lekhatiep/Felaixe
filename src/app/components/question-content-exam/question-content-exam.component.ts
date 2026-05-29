@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, Input } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -30,7 +30,7 @@ import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
   styleUrl: './question-content-exam.component.scss',
 })
 export class QuestionContentExamComponent {
-  questionForm!: FormGroup;
+  @Input() mode: 'study' | 'exam' | 'review' = 'study';
 
   private apiService = inject(ApiService);
   private examService = inject(ExamService);
@@ -51,12 +51,13 @@ export class QuestionContentExamComponent {
   quizState: QuizState | undefined = undefined;
   isLeave: boolean = false;
   isEndExam: boolean = false;
+  hideNextBtn: boolean = false;
+  hidePrevBtn: boolean = true;
   
+
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    this.loadQuestion();
-
     this.examService.currentQuestionSelected$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -68,6 +69,9 @@ export class QuestionContentExamComponent {
             setTimeout(() => {
               this.currentQuestion = question;
               this.index = this.examService.getCurrentIndex();
+              this.hideNextBtn = this.index === this.listQuestion.length - 1;
+              this.hidePrevBtn = this.index === 0;
+              
               if (question.isAnswered) {
                 const answer = question.answers?.find(
                   (a) => a.id == question.quizState?.answerId,
@@ -90,6 +94,12 @@ export class QuestionContentExamComponent {
       .subscribe((rs) => {
         this.isEndExam = rs;
       });
+
+    this.examService.multiplierExam$
+      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .subscribe((multiplier) => {
+        this.loadQuestion(multiplier);
+      });
     console.log('render card exam');
   }
 
@@ -99,6 +109,8 @@ export class QuestionContentExamComponent {
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
+    this.hideNextBtn = this.index === this.listQuestion.length - 1;
+    this.hidePrevBtn = this.index === 0;
   }
 
   previous() {
@@ -109,12 +121,14 @@ export class QuestionContentExamComponent {
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
+    this.hideNextBtn = this.index === this.listQuestion.length - 1;
+    this.hidePrevBtn = this.index === 0;
   }
 
-  loadQuestion() {
+  loadQuestion(multiplier: number) {
     this.resetDefault();
 
-    this.examService.loadExamQuestions().subscribe((data) => {
+    this.examService.loadExamQuestions(multiplier).subscribe((data) => {
       this.listQuestion = data;
     });
 

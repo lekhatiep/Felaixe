@@ -51,9 +51,9 @@ export class ApiService {
       );
   }
 
-  getExamQuestions() {
+  getExamQuestions(typeExamB : number) {
     return this.httpClient
-      .get<Question[]>(`${this.apiUrl}/api/Questions/GetRandomExampleQuestionB`)
+      .get<Question[]>(`${this.apiUrl}/api/Questions/GetRandomExampleQuestionB?multiplier=${typeExamB}`)
       .pipe(
         catchError((error) => {
           console.error('Error fetching questions:', error);

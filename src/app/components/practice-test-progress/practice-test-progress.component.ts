@@ -20,7 +20,7 @@ export class PracticeTestProgressComponent implements OnInit {
   ngOnInit(): void {
     if (this.isStarted == true) {
     }
-    this.timer(15); // 30p * 60
+    this.timer(1800); // 30p * 60
   }
 
   timer(totalSeconds: number) {

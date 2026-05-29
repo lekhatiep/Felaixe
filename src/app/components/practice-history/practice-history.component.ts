@@ -17,6 +17,8 @@ export class PracticeHistoryComponent  implements OnInit{
 
   ngOnInit(): void {
     this.listResult = this.examService.loadHistoryExam();
+
+    this.listResult = [...this.listResult].reverse();
   }
   
 }

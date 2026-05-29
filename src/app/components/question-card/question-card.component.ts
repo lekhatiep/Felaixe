@@ -126,6 +126,8 @@ export class QuestionCardComponent implements OnInit {
     this.currentQuestion = this.listQuestion[this.index];
     this.isCorrect = null;
     //this.questionService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
+    console.log(this.currentQuestion);
+    
     this.questionService.setCurrentQuestion(this.currentQuestion);
   }
 
@@ -148,7 +150,7 @@ export class QuestionCardComponent implements OnInit {
       .loadQuestionByChapterID(this.chapterId ?? -1)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data) => {
-        //this.listQuestion = data;
+        this.listQuestion = data;
         this.totalQuestion = data.length;
       });
   }

@@ -21,7 +21,7 @@ import { SideBarWrapComponent } from "../side-bar-wrap/side-bar-wrap.component";
   encapsulation: ViewEncapsulation.None,
 })
 export class QuestionContainerComponent {
-  @Input() mode: 'study' | 'exam' = 'study';
+  @Input() mode: 'study' | 'exam' | 'review' = 'study';
 
   
 }

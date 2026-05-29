@@ -14,9 +14,10 @@ export class PracticeTestCardComponent {
 
   @Input({required: true}) totalQuestion: number = 0;
   @Input({required: true}) minutes: number = 0;
-
+  @Input({required: true}) multiplier: number = 1;
   
   nextStep(){
     this.examService.setCurrentPart(3)
+    this.examService.setMultiplierExam(this.multiplier);
   }
 }

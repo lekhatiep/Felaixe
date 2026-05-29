@@ -3,24 +3,25 @@
     <h2 class="header-title">Học lý thuyết 600 câu lái xe ô tô</h2>
     <p>Message: {{ message }}</p>
   </div>
-  @switch (step) {
-    @case (step_1) {
+    @switch (step) {
+      @case (step_1) {
         <app-practice />
-    }
-    @case (step_2) {
+      }
+      @case (step_2) {
         <app-practice-test (backStep_1)="handleBackStep($event)" />
+      }
+      @case (step_3) {
+        <app-practice-test-progress />
+        <app-question-container [mode]="'exam'" />
+      }
+      @case (step_4) {
+        <app-practice-test-result />
+        <app-question-container [mode]="'review'" />
+      }
+      @default {
+        <p>Welcome, Guest.</p>
+      }
     }
-    @case (step_3) {
-      <app-practice-test-progress />
-      <app-question-container [mode]="'exam'" />
-    }
-    @case (step_4) {
-      <app-practice-test-result />
-    }
-    @default {
-      <p>Welcome, Guest.</p>
-    }
-  }
 
   <app-practice-history />
 </div>

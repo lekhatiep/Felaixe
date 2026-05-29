@@ -212,7 +212,6 @@ export class SideBarQuestionComponent implements OnInit {
     selectQuestion.state = 'active';
 
     this.questionService.setCurrentQuestion(selectQuestion);
- return;
     this.currentIndex = this.listQuestion.indexOf(selectQuestion);
     this.questionService.setCurrentIndex(this.currentIndex);
   }

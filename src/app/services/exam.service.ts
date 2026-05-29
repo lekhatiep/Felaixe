@@ -27,6 +27,7 @@ export class ExamService {
     undefined,
   );
   currentQuestionSelected$ = this.currentQuestionSelectedSubject.asObservable();
+
   questionNumberSelected: number = 1;
   currentAnswerSelectedSubject = new BehaviorSubject<Answer | undefined>(
     undefined,
@@ -59,6 +60,11 @@ export class ExamService {
   endCurrentExamSubject = new BehaviorSubject<boolean>(false);
   endCurrentExam$ = this.endCurrentExamSubject.asObservable();
 
+  multiplierExamSubject = new BehaviorSubject<number>(1);
+  multiplierExam$ = this.multiplierExamSubject.asObservable();
+
+  currentMultiplier: number = 1;
+
   setCurrentPart(part: number) {
     this.currentPartSubject.next(part);
   }
@@ -71,25 +77,33 @@ export class ExamService {
     return this.exercise_mode;
   }
 
-  loadExamQuestions(): Observable<Question[]> {
-    //this.refreshTempListAnswered();
-    const storedQuestions = localStorage.getItem('list-exam-question');
+  loadExamQuestions(multiplier: number): Observable<Question[]> {
+    this.refreshTempListAnswered();
+    const storedQuestions = localStorage.getItem(
+      `list-exam-question-${multiplier}`,
+    );
     if (storedQuestions) {
       let questions: Question[] = JSON.parse(storedQuestions);
 
       return of(questions);
     }
-    return this.apiService.getExamQuestions().pipe(
+    return this.apiService.getExamQuestions(multiplier).pipe(
       map((data) => {
-        localStorage.setItem('list-exam-question', JSON.stringify(data));
+        localStorage.setItem(
+          `list-exam-question-${multiplier}`,
+          JSON.stringify(data),
+        );
         return data;
       }),
     );
   }
 
-  getCurrentQuestion(questionNumber: number): Question | undefined {
+  getCurrentQuestion(
+    questionNumber: number,
+    multiplier: number,
+  ): Question | undefined {
     if (this.listExamQuestion.length === 0) {
-      this.loadExamQuestions();
+      this.loadExamQuestions(multiplier);
     }
     if (questionNumber < 1 || questionNumber > this.listExamQuestion.length) {
       return undefined;
@@ -100,10 +114,10 @@ export class ExamService {
   }
 
   setCurrentQuestion(question: Question) {
-    if (this.currentQuestionSelectedSubject.value == question) {
+    if (this.currentQuestionSelectedSubject.value === question) {
       return;
     }
-
+    
     this.currentQuestionSelectedSubject.next(question);
   }
 
@@ -176,10 +190,12 @@ export class ExamService {
     localStorage.removeItem('list-exam-quiz-state');
   }
 
-  submitExam(startTime : Date) {
+  submitExam(startTime: Date) {
     //alert('Submited');
 
-    const storedQuestions = localStorage.getItem('list-exam-question');
+    const storedQuestions = localStorage.getItem(
+      `list-exam-question-${this.currentMultiplier}`,
+    );
     let submissionExam: SubmissionExam;
     let answers: Record<number, number> = {};
 
@@ -191,7 +207,7 @@ export class ExamService {
         questionIds: questionIDs,
         answers: answers,
         startTime: new Date(startTime),
-        endTime: new Date()
+        endTime: new Date(),
       };
 
       const listQuizAnswerString = localStorage.getItem('list-exam-quiz-state');
@@ -222,7 +238,7 @@ export class ExamService {
         },
         error: (err) => {
           console.error('Error:', err);
-          alert("SERVER ERROR !!!")
+          alert('SERVER ERROR !!!');
           this.resetExamAnswers();
           //window.location.reload();
         },
@@ -252,7 +268,7 @@ export class ExamService {
   }
 
   resetExamAnswers() {
-    localStorage.removeItem('list-exam-quiz-state');
+    //localStorage.removeItem('list-exam-quiz-state');
     //window.location.reload();
   }
 
@@ -270,5 +286,10 @@ export class ExamService {
 
   setEndCurrentExam(isEnd: boolean) {
     this.endCurrentExamSubject.next(isEnd);
+  }
+
+  setMultiplierExam(type: number) {
+    this.multiplierExamSubject.next(type);
+    this.currentMultiplier = type;
   }
 }

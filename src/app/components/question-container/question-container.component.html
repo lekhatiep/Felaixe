@@ -12,13 +12,15 @@
       } @else {
         <app-side-bar-exam />
       } -->
-        <app-side-bar-wrap [mode]="mode"/>
+      <app-side-bar-wrap [mode]="mode" />
     </div>
     <div class="question-content">
       @if (mode == "study") {
         <app-question-card></app-question-card>
-      } @else {
+      } @else if (mode == "exam") {
         <app-question-content-exam />
+      } @else {
+        <app-question-content-exam  [mode] = "'review'" />
       }
     </div>
   </div>

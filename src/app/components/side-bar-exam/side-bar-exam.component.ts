@@ -55,8 +55,6 @@ export class SideBarExamComponent {
   ngOnInit() {
     this.startTime = new Date();
 
-    this.loadExamQuestion();
-
     //  this.examService.currentAnswerSelected$
     //    .pipe(takeUntilDestroyed(this.destroyRef))
     //    .subscribe({
@@ -84,23 +82,40 @@ export class SideBarExamComponent {
               (q) => q.questionNumber == question.questionNumber,
             );
             const currentQuestionNumber = this.listQuestion[currentIndex];
+            console.log('1');
+
             this.selectQuestion(currentQuestionNumber);
           }
         },
       });
 
+    // this.examService.selectedQuestionNumber$
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: (questionNumber) => {
+    //       const currentIndex = this.listQuestion.findIndex(
+    //         (q) => q.questionNumber == questionNumber,
+    //       );
+    //       const nextQuestion = this.listQuestion[currentIndex + 1];
+    //       this.selectQuestion(nextQuestion);
+    //     },
+    //   });
+
     this.examService.timer$
       .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
       .subscribe((seconds) => {
         if (seconds == 0) {
+          this.isEndExam = true;
+          this.examService.setEndCurrentExam(true);
           this.openDialogTimeOut();
+          this.examService.submitExam(this.startTime);
         }
       });
 
-    this.examService.endCurrentExam$
+    this.examService.multiplierExam$
       .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
-      .subscribe((rs) => {
-        this.isEndExam = rs;
+      .subscribe((multiplier) => {
+        this.loadExamQuestion(multiplier);
       });
 
     this.currentIndex = this.examService.getCurrentIndex();
@@ -110,30 +125,9 @@ export class SideBarExamComponent {
     this.isOpen = !this.isOpen;
   }
 
-  loadExamQuestion() {
-    this.examService.loadExamQuestions().subscribe((data) => {
-      this.listQuestion = data;
-    });
-    this.listQuestion.map((q) => ({
-      ...q,
-      state: 'default',
-    }));
-
-    this.listQuizState = this.examService.loadQuizStateAns();
-
-    this.listQuestion.map((q) => {
-      const qs = this.listQuizState.find(
-        (qs) => qs.questionNumber == q.questionNumber,
-      );
-      if (qs) {
-        q.state = 'answered';
-      }
-    });
-    this.selectQuestion(this.listQuestion[0]);
-  }
-
   selectQuestion(selectQuestion: Question) {
     //Get history quizState
+    console.log('selectQuestion');
 
     const ansQuizState = this.listQuizState.find(
       (q) => q.questionNumber == selectQuestion.questionNumber,
@@ -192,6 +186,7 @@ export class SideBarExamComponent {
 
     const dialogRef = this.dialog.open(DialogConfirmComponent, {
       autoFocus: true,
+      // disableClose: true,
       width: '350px',
       data: {
         title: 'Thông báo',
@@ -204,10 +199,31 @@ export class SideBarExamComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log(result);
+   
+    });
+  }
 
-      if (result) {
-        this.examService.submitExam(this.startTime);
-      }
+  loadExamQuestion(multiplier: number) {
+    this.examService.loadExamQuestions(multiplier).subscribe((data) => {
+      console.log(data);
+      
+      this.listQuestion = data;
+      this.listQuestion.map((q) => ({
+        ...q,
+        state: 'default',
+      }));
+
+      this.listQuizState = this.examService.loadQuizStateAns();
+
+      this.listQuestion.map((q) => {
+        const qs = this.listQuizState.find(
+          (qs) => qs.questionNumber == q.questionNumber,
+        );
+        if (qs) {
+          q.state = 'answered';
+        }
+      });
+      this.selectQuestion(this.listQuestion[0]);
     });
   }
 }

@@ -26,8 +26,7 @@ export class PracticeHistoryItemComponent implements OnInit {
   dateTimeSpentStr: string = '';
 
   ngOnInit(): void {
-    console.log(this.resultItem);
-    
+
     this.score = this.resultItem.score;
     this.totalQuestion = this.resultItem.questionIds.length;
     // this.timeSpent = this.resultItem.examDate.getDay()
@@ -47,7 +46,6 @@ export class PracticeHistoryItemComponent implements OnInit {
 
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  console.log(totalSeconds, minutes, seconds);
   
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }

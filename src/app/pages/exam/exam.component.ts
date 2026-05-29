@@ -1,4 +1,8 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, of, tap } from 'rxjs';
 import { PracticeComponent } from '../../components/practice/practice.component';
 import { PracticeTestComponent } from '../../components/practice-test/practice-test.component';
 import { PracticeTestProgressComponent } from '../../components/practice-test-progress/practice-test-progress.component';
@@ -6,10 +10,7 @@ import { PracticeTestResultComponent } from '../../components/practice-test-resu
 import { PracticeHistoryComponent } from '../../components/practice-history/practice-history.component';
 import { ExamService } from '../../services/exam.service';
 import { QuestionContainerComponent } from '../../components/question-container/question-container.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialog } from '@angular/material/dialog';
 import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
-import { Observable, tap } from 'rxjs';
 import { DialogConfirmComponent } from '../../components/dialog-confirm/dialog-confirm.component';
 
 @Component({
@@ -22,7 +23,8 @@ import { DialogConfirmComponent } from '../../components/dialog-confirm/dialog-c
     PracticeTestResultComponent,
     PracticeHistoryComponent,
     QuestionContainerComponent,
-  ],
+    RouterOutlet
+],
   templateUrl: './exam.component.html',
   styleUrl: './exam.component.scss',
 })
@@ -46,7 +48,7 @@ export class ExamComponent implements OnInit, HasUnsavedChanges {
     console.log('step' + this.step);
 
     //this.step = 1;
-    this.examService.setCurrentPart(this.step_1);
+    this.examService.setCurrentPart(4);
 
     this.examService.currentPart$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -83,6 +85,11 @@ export class ExamComponent implements OnInit, HasUnsavedChanges {
   }
 
   canLeave(): Observable<boolean> {
+    
+    if (this.step !== this.step_3) {
+      return of(true);
+    }
+
     (document.activeElement as HTMLElement)?.blur();
 
     const dialogRef = this.dialog.open(DialogConfirmComponent, {
@@ -95,7 +102,7 @@ export class ExamComponent implements OnInit, HasUnsavedChanges {
         cancelBtnText: 'Tiếp tục bài làm',
       },
     });
-
+    
     return dialogRef.afterClosed().pipe(
       tap((result) => {
         this.examService.setEndCurrentExam(result);
