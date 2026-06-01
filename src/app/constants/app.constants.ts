@@ -1,6 +1,6 @@
 export class AppConstants {
     public static readonly API_ENDPOINT = 'https://localhost:5001';
-    public static readonly API_ENDPOINT_2 = 'https://localhost:7093';
+    public static readonly API_ENDPOINT_2 = 'https://laixe-api-daa0g9enfudebsey.southeastasia-01.azurewebsites.net';
 
     public static readonly STUDY = 'study';
     public static readonly EXAM = 'exam';
