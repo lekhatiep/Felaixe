@@ -175,7 +175,7 @@ export class SideBarExamComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        alert('Nộp bài thành công');
+        //alert('Nộp bài thành công');
         this.examService.submitExam(this.startTime);
       }
     });

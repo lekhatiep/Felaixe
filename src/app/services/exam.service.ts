@@ -16,6 +16,7 @@ import { ResultExam } from '../models/resultExam.model';
 export class ExamService {
   private apiService = inject(ApiService);
   exercise_mode = AppConstants.STUDY;
+  step_4: number = 4; /*Show ket qua*/
 
   currentPartSubject = new BehaviorSubject<number>(0);
   currentPart$ = this.currentPartSubject.asObservable();
@@ -79,6 +80,7 @@ export class ExamService {
 
   loadExamQuestions(multiplier: number): Observable<Question[]> {
     this.refreshTempListAnswered();
+
     const storedQuestions = localStorage.getItem(
       `list-exam-question-${multiplier}`,
     );
@@ -188,6 +190,7 @@ export class ExamService {
 
   refreshTempListAnswered() {
     localStorage.removeItem('list-exam-quiz-state');
+    this.resetExamAnswers();
   }
 
   submitExam(startTime: Date) {
@@ -230,16 +233,17 @@ export class ExamService {
       this.apiService.postExam(submissionExam).subscribe({
         next: (response) => {
           //console.log('Success:', response);
-          alert(response.isPassed ? 'Pass roi' : 'Rot thi lai bai moi');
+          //(response.isPassed ? 'Pass roi' : 'Rot thi lai bai moi');
           console.log('response', response);
 
           this.saveHistoryExam(response);
-          this.resetExamAnswers();
+          this.setCurrentPart(this.step_4)
+          //this.resetExamAnswers();
         },
         error: (err) => {
           console.error('Error:', err);
           alert('SERVER ERROR !!!');
-          this.resetExamAnswers();
+          //this.resetExamAnswers();
           //window.location.reload();
         },
         complete: () => console.log('Request finished'),
