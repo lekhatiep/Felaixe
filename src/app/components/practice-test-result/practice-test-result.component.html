@@ -1,0 +1,84 @@
+<div
+  id="examResultSection"
+  class="exam-result-section"
+  style="/* display: none; */"
+>
+  <div class="result-board">
+    <div class="result-header">
+      <h3 id="examTitle" class="result-title">
+        <i class="fas fa-clipboard-check"></i> KẾT QUẢ THI Hạng B - Đề B-00
+      </h3>
+    </div>
+    <div class="result-body">
+      <!-- Nút hành động - Đặt ở đầu -->
+      <div id="resultButtonsContainer" class="result-buttons">
+        <button class="btn-primary">
+          <i class="fas fa-redo"></i> Thi lại đề này
+        </button>
+        <!-- <button class="btn-primary">
+          <i class="fas fa-sync-alt"></i> Thi đề khác</button
+        ><button class="btn-primary">
+          <i class="fas fa-id-card"></i> Chọn lại hạng Bằng</button
+        >-->
+        <button class="btn-primary">
+          <i class="fas fa-book-open"></i> Ôn tập lại 600 câu
+        </button>
+      </div>
+
+      <!-- Tổng quan kết quả - layout gọn hơn -->
+      <div class="result-overview result-overview-compact">
+        <div class="result-main-row">
+          <div class="result-main-extra">
+            <div class="result-main-extra-item result-main-extra-item-result">
+              <span class="result-main-extra-label">Kết quả</span>
+              <span id="totalScore" class="score red"
+                >{{ newestResult.score }}/
+                {{ newestResult.questionIds.length }}</span
+              >
+              @if (newestResult.isPassed) {
+                <span id="evaluation" class="evaluation green"> Đạt</span>
+              } @else {
+                <span id="evaluation" class="evaluation red"> Chưa đạt</span>
+              }
+            </div>
+            <div class="result-main-extra-item">
+              <span class="result-main-extra-label">Đúng</span>
+              <span id="correctCount" class="correct-count">{{
+                newestResult.correctQuestionIds.length
+              }}</span>
+            </div>
+            <div class="result-main-extra-item">
+              <span class="result-main-extra-label">Sai</span>
+              <span id="wrongCount" class="wrong-count">{{
+                newestResult.wrongQuestionIds.length
+              }}</span>
+            </div>
+            <!-- <div class="result-main-extra-item">
+              <span class="result-main-extra-label">Điểm liệt</span>
+              <span id="diemLietStatus" class="diem-liet-status green"
+                >Đúng</span
+              >
+            </div> -->
+            <div class="result-main-extra-item">
+              <span class="result-main-extra-label">Thời gian</span>
+              <span id="timeSpent" class="result-main-extra-value time-spent">{{
+                dateTimeSpentStr
+              }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="result-message-wrapper result-message-compact">
+          @if (newestResult.isPassed) {
+            <p id="resultMessage" class="result-message" style="color: green">
+              Bạn đã đậu
+            </p>
+          } @else {
+            <p id="resultMessage" class="result-message" style="color: red">
+              Bạn đã thi rớt !!!
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

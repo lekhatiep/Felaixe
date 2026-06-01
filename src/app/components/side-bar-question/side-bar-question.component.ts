@@ -1,9 +1,13 @@
 import {
+  AfterContentInit,
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   HostListener,
   inject,
   Input,
+  OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,6 +25,7 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { ApiService } from '../../services/api.service';
+import { distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-side-bar-question',
@@ -34,16 +39,16 @@ import { ApiService } from '../../services/api.service';
   ],
   templateUrl: './side-bar-question.component.html',
   styleUrl: './side-bar-question.component.scss',
-  encapsulation: ViewEncapsulation.None,
 })
-export class SideBarQuestionComponent {
+export class SideBarQuestionComponent implements OnInit {
   private questionService = inject(QuestionService);
   private apiService = inject(ApiService);
   private destroyRef = inject(DestroyRef);
+  //private cdRef = inject(ChangeDetectorRef)
 
   selected = 'option2';
-  @Input({ required: true }) listChapter: Chapter[] = [];
-
+  // @Input({ required: true }) listChapter: Chapter[] = [];
+  listChapter: Chapter[] = [];
   selectedChapter = this.listChapter[0];
   selectChapterId: number = 0;
   selectForm!: FormGroup;
@@ -53,7 +58,7 @@ export class SideBarQuestionComponent {
   isAnswered: boolean | undefined = false;
   isCorrectAns: boolean | undefined = false;
   selectedQuestionNumberId: number = 0;
-  ansIndex: number = 0;
+  currentIndex: number = 0;
   answer: Answer | undefined;
   listQuizState: QuizState[] = [];
 
@@ -72,8 +77,13 @@ export class SideBarQuestionComponent {
     }
   }
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private cdRef: ChangeDetectorRef,
+  ) {}
+
   ngOnInit() {
+    this.listChapter = this.questionService.getListChapter();
     this.selectForm = this.fb.group({
       chapter: [null],
     });
@@ -83,7 +93,6 @@ export class SideBarQuestionComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
-          console.log(data?.isCorrect);
           this.isCorrectAns = data?.isCorrect;
           this.isAnswered = true;
         },
@@ -96,6 +105,34 @@ export class SideBarQuestionComponent {
           this.listQuizState = this.questionService.loadQuizStateAns();
         },
       });
+
+    // this.questionService.selectedQuestionNumber$
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe({
+    //     next: (questionNumber) => {
+    //       const currentIndex = this.listQuestion.findIndex(
+    //         (q) => q.questionNumber == questionNumber,
+    //       );
+    //       const nextQuestion = this.listQuestion[currentIndex + 1];
+    //       this.selectQuestion(nextQuestion);
+    //     },
+    //   });
+
+    this.questionService.currentQuestionSelected$
+      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .subscribe({
+        next: (question) => {
+          if (question) {
+            const currentIndex = this.listQuestion.findIndex(
+              (q) => q.questionNumber == question.questionNumber,
+            );
+            const currentQuestionNumber = this.listQuestion[currentIndex];
+            this.selectQuestion(currentQuestionNumber);
+          }
+        },
+      });
+
+    this.currentIndex = this.questionService.getCurrentIndex();
   }
 
   onChange() {
@@ -124,12 +161,18 @@ export class SideBarQuestionComponent {
   onChangeChapter(chapter: Chapter) {}
 
   loadQuestion() {
-    this.listQuestion = this.questionService.loadQuestions(this.selectChapterId);
+    this.questionService
+      .loadQuestionByChapterID(this.selectChapterId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        this.listQuestion = data;
+      });
+
     this.listQuestion.map((q) => ({
       ...q,
       state: 'default',
     }));
-
+   
     this.listQuizState = this.questionService.loadQuizStateAns();
 
     this.listQuestion.map((q) => {
@@ -141,12 +184,20 @@ export class SideBarQuestionComponent {
       }
     });
     this.selectQuestion(this.listQuestion[0]);
+    
   }
 
   selectQuestion(selectQuestion: Question) {
     //Get history quizState
 
-    console.log(this.selectedQuestionNumberId);
+    const ansQuizState = this.listQuizState.find(
+      (q) => q.questionNumber == selectQuestion.questionNumber,
+    );
+    if (ansQuizState) {
+      selectQuestion.isAnswered = true;
+      selectQuestion.quizState = ansQuizState;
+    }
+
     this.listQuestion.map((q) => {
       const qz = this.listQuizState.find(
         (qs) => qs.questionNumber == q.questionNumber,
@@ -158,16 +209,11 @@ export class SideBarQuestionComponent {
       }
     });
 
-    const ansQuizState = this.listQuizState.find(
-      (q) => q.questionNumber == selectQuestion.questionNumber,
-    );
-    if (ansQuizState) {
-      selectQuestion.isAnswered = true;
-      selectQuestion.quizState = ansQuizState;
-    }
     selectQuestion.state = 'active';
 
     this.questionService.setCurrentQuestion(selectQuestion);
+    this.currentIndex = this.listQuestion.indexOf(selectQuestion);
+    this.questionService.setCurrentIndex(this.currentIndex);
   }
 
   removeQuizState() {

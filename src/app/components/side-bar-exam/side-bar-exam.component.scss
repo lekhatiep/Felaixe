@@ -1,0 +1,23 @@
+.sidebar-submit-wrapper {
+    margin-top: 16px;
+}
+.btn-submit {
+    background: linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%);
+    padding: 12px 32px;
+    font-size: 16px;
+}
+.btn-action {
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+.disabled {
+   pointer-events: none;
+}

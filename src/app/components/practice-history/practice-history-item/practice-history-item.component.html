@@ -1,0 +1,37 @@
+<div class="history-item">
+  <div class="history-item-header">
+    <div class="history-item-title">
+      <span class="history-exam-type">Hạng B</span>
+      <span class="history-exam-number">Đề Câu hỏi ngẫu nhiên</span>
+      <span class="history-status failed">
+        <mat-icon>close</mat-icon> Rớt
+      </span>
+    </div>
+    <!-- <div class="history-item-date">10:41:25 18/5/2026</div> -->
+    <div class="history-item-date">{{dateExamString}}</div>
+
+  </div>
+  <div class="history-item-body">
+    <div class="history-stat">
+      <span class="history-stat-label">Điểm:</span>
+      <span class="history-stat-value red">{{score}} / {{totalQuestion}}</span>
+    </div>
+    <div class="history-stat">
+      <span class="history-stat-label">Thời gian:</span>
+      <span class="history-stat-value">{{dateTimeSpentStr}}</span>
+    </div>
+    <div class="history-stat">
+      <span class="history-stat-label">Đúng:</span>
+      <span class="history-stat-value green">{{totalCorrectQuestion}}</span>
+    </div>
+    <div class="history-stat">
+      <span class="history-stat-label">Sai:</span>
+      <span class="history-stat-value red">{{totalWrongNumberQuestion}}</span>
+    </div>
+  </div>
+  <div class="history-item-actions">
+    <button class="btn-view-detail" (click)="viewExamDetail(resultItem.id)">
+      <i class="fas fa-eye"></i> Xem chi tiết
+    </button>
+  </div>
+</div>

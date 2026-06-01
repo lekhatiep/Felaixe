@@ -9,7 +9,7 @@ export interface Question extends QuestionResponseModel {
     content: string;
     explanation?: string;
     answers?: Answer[];
-    state?: 'default' | 'active' | 'correct' | 'incorrect'
+    state?: 'default' | 'active' | 'correct' | 'incorrect' | 'answered'
     isAnswered: boolean;
     quizState?: QuizState
 }
@@ -21,14 +21,20 @@ export interface Answer {
     isCorrect: boolean;
     label: string;
     text: string;
+    answered? : boolean
 }
 
 
 export interface QuizState {
     questionNumber: number;
     answerId: number;
-    isCorrect: boolean;
+    isCorrect?: boolean;
 }
 export interface QuestionResponseModel {
     
+}
+
+export interface CurrentQuestionState {
+    index: number,
+    question: Question
 }

@@ -1,0 +1,35 @@
+<div id="examInProgressSection" class="exam-in-progress-section">
+        <!-- Header với thông tin thi -->
+        <div class="quiz-header" id="quizHeader" style="display: block;">
+            <div class="quiz-header-content">
+                <div class="quiz-stats">
+                    <span class="stat-item">
+                        <mat-icon>card_membership</mat-icon>
+                        <span id="currentExamTypeLabel">Hạng B</span> - <span id="currentExamNumberLabel">Câu hỏi ngẫu nhiên</span>
+                    </span>
+                    <span class="stat-item">
+                        <i class="fas fa-book"></i>
+                        <mat-icon>book</mat-icon>
+                        <span id="totalQuestions">30</span> câu
+                    </span>
+                    <span class="stat-item">
+                        <i class="fas fa-clock"></i>
+                        <mat-icon>alarm</mat-icon>
+                        <span id="timerDisplay">{{displayTimer}}</span>
+                    </span>
+                    <span class="stat-item">
+                        <i class="fas fa-check-circle"></i>
+                        <mat-icon>check_circle</mat-icon>
+                        <span id="answeredCount">0</span> đã làm
+                    </span>
+                </div>
+            </div>
+            <!-- Timer và progress bar -->
+            <div class="timer-container">
+                <div class="progress-container" style="display: block;">
+                    <div id="progressBar" [class.danger]="isDanger" class="progress-bar" style="display: block; width:{{widthProgress}}%;"></div>
+                    <div id="timer" class="timerrh" style="display: block;">Thời gian còn lại: {{displayTimer}}</div>
+                </div>
+            </div>
+        </div>
+    </div>

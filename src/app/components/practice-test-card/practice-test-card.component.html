@@ -1,0 +1,26 @@
+<button
+  class="exam-number-card exam-random"
+  data-exam-number="0"
+  (click)="nextStep()"
+>
+  <div class="exam-number-icon">
+    <mat-icon>change_circle</mat-icon>
+  </div>
+  <div class="exam-number-content">
+    <h4 class="exam-number-title">Câu hỏi ngẫu nhiên</h4>
+    <div class="exam-number-info">
+      <span class="exam-info-item">
+        <mat-icon>info</mat-icon>
+        {{ totalQuestion }} câu
+      </span>
+      <span class="exam-info-item">
+        <mat-icon>timer</mat-icon>
+        {{ minutes }} phút
+      </span>
+    </div>
+    <div class="exam-number-status status-not-done">
+      <mat-icon>play_circle</mat-icon>
+      Làm bài
+    </div>
+  </div>
+</button>

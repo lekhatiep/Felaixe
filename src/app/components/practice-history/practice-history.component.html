@@ -1,0 +1,21 @@
+<div class="exam-history-section">
+  <div class="history-header">
+    <h3 class="history-title">
+      <i class="fas fa-history"></i>
+      Lịch sử thi
+    </h3>
+    <button
+      id="clearHistoryBtn"
+      class="btn-clear-history"
+      style="display: block"
+    >
+      <i class="fas fa-trash"></i>
+      Xóa lịch sử
+    </button>
+  </div>
+  <div class="history-list" id="historyList">
+    @for(result of listResult; track $index) {
+      <app-practice-history-item [resultItem]="result"></app-practice-history-item>
+    }
+  </div>
+</div>

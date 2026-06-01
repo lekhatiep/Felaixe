@@ -1,0 +1,16 @@
+<div class="exam-selection-section">
+  <div class="exam-type-selection">
+    <div class="exam-type-cards-grid">
+      <h3 class="exam-type-title">
+        <i class="fas fa-id-card"></i>
+        Chọn hạng bằng để bắt đầu thi
+      </h3>
+      <div class="exam-cards-row">
+        <!-- <app-exam-card [numberQuestion]="30" [minutes]="20" [score]="27" ></app-exam-card> -->
+         <!-- TODO: LIST TYPE B  -->
+        <app-exam-card [numberQuestion]="60" [minutes]="30" [score]="54" [typeExamB]="'B_new'" (click)="nextStep('B_new')"></app-exam-card>
+        <app-exam-card [numberQuestion]="30" [minutes]="30" [score]="27" [typeExamB]="'B_old'" (click)="nextStep('B_old')"></app-exam-card>
+      </div>
+    </div>
+  </div>
+</div>

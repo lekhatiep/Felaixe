@@ -3,7 +3,7 @@
   @if (currentQuestion) {
     <div class="card-header d-flex justify-content-between align-items-center">
       <span class="fw-semibold">
-        Câu {{ currentQuestion.questionNumber }} / {{ listQuestion.length }}
+        Câu {{ currentQuestion.questionNumber }} / {{ totalQuestion }}
       </span>
 
       <button
@@ -19,9 +19,12 @@
       <h5 class="question-text">
         {{ currentQuestion.content }}
       </h5>
+      <div class="question-image-wrapper">
+       <app-question-image [questionId]="currentQuestion.questionNumber"/>
+      </div>
       @if (isLearningMode) {
         <div class="answer-list">
-            @for (ans of currentQuestion.answers; track ans.id; let i = $index) {
+          @for (ans of currentQuestion.answers; track ans.id; let i = $index) {
             <div
               class="answer-item answer"
               [class.correct]="selectedAnswerId === ans.id && ans.isCorrect"
@@ -29,15 +32,13 @@
               (click)="checkAnswer(ans)"
             >
               <span class="">
-                @if(selectedAnswerId === ans.id && ans.isCorrect && answered) {
-                  <span class="visually-hidden text-success">
-                   ✔
-                  </span>
+                @if (selectedAnswerId === ans.id && ans.isCorrect && answered) {
+                  <span class="visually-hidden text-success"> ✔ </span>
                 }
-                @if( selectedAnswerId === ans.id && !ans.isCorrect && answered) {
-                  <span class="visually-hidden text-error">
-                   ❌
-                  </span>
+                @if (
+                  selectedAnswerId === ans.id && !ans.isCorrect && answered
+                ) {
+                  <span class="visually-hidden text-error"> ❌ </span>
                 }
                 {{ i + 1 }}.
                 {{ ans.content }}
@@ -45,30 +46,36 @@
             </div>
           }
         </div>
-        <div class="result-box mt-4 explanation-box" *ngIf="isCorrect == false && isCorrect != null">
-          <div
+        <div
+          class="result-box mt-4 explanation-box"
+          *ngIf="isCorrect == false && isCorrect != null"
+        >
+          <!-- <div
             class="fw-bold"
             [ngClass]="isCorrect ? 'text-success' : 'text-error'"
           >
             {{ isCorrect ? "✔ Chính xác" : "❌ Sai rồi" }}
-          </div>
+          </div> -->
 
           <div class="">
             <div class="fw-bold">
-              <span class="d-flex align-items-center gap-1 explanation-header">
+              <div class="align-items-center gap-1 explanation-header">
                 <mat-icon class="text-warning">tips_and_updates</mat-icon>
-                <span>Giải thích:</span>
-              </span>
+                <b>Giải thích:</b>
+              </div>
             </div>
             <div class="text-muted mt-2">
-              <span class="text-warning">Chưa có giải thích</span>
+              @if (!currentQuestion.explanation) {
+                <span class="text-warning">Chưa có giải thích</span>
+              }
+
               {{ currentQuestion.explanation }}
             </div>
           </div>
         </div>
       } @else {
         <!-- Answers -->
-        <form [formGroup]="questionForm" (ngSubmit)="submitExam()">
+        <form [formGroup]="questionForm" >
           <div class="answer-list">
             <label
               *ngFor="let ans of currentQuestion.answers"
