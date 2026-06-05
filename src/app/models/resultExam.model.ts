@@ -7,4 +7,5 @@ export interface ResultExam {
     correctQuestionIds: number[];
     examDate: Date;
     durationSeconds: number;
+    answers: Record<number,number>;
 }

@@ -21,6 +21,9 @@ import { delay, distinctUntilChanged, Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
 import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
+import { ResultExam } from '../../models/resultExam.model';
+import { ActivatedRoute } from '@angular/router';
+import { QuestionService } from '../../services/question.service';
 
 @Component({
   selector: 'app-question-content-exam',
@@ -31,11 +34,12 @@ import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
 })
 export class QuestionContentExamComponent {
   @Input() mode: 'study' | 'exam' | 'review' = 'study';
+  @Input() id!: string; // Router parameter url
 
-  private apiService = inject(ApiService);
+  private questionService = inject(QuestionService);
   private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
-  readonly dialog = inject(MatDialog);
+  private activatedRouter = inject(ActivatedRoute);
 
   isCorrect: boolean | null = null;
   listQuestion: Question[] = [];
@@ -53,11 +57,30 @@ export class QuestionContentExamComponent {
   isEndExam: boolean = false;
   hideNextBtn: boolean = false;
   hidePrevBtn: boolean = true;
-  
+  resultExamItem: ResultExam | undefined = undefined;
+  historyItemId!: string | null;
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
+    if (this.mode === 'review') {
+      console.log('mode review');
+
+      this.activatedRouter.paramMap.subscribe((params) => {
+        this.historyItemId = params.get('id');
+      });
+      console.log(this.historyItemId);
+
+      this.resultExamItem = this.examService.getHistoryItemByID(
+        Number(this.historyItemId),
+      );
+
+      console.log(this.resultExamItem);
+      if (this.resultExamItem) {
+        this.fillAnswered(this.resultExamItem);
+      }
+    }
+
     this.examService.currentQuestionSelected$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -71,7 +94,7 @@ export class QuestionContentExamComponent {
               this.index = this.examService.getCurrentIndex();
               this.hideNextBtn = this.index === this.listQuestion.length - 1;
               this.hidePrevBtn = this.index === 0;
-              
+
               if (question.isAnswered) {
                 const answer = question.answers?.find(
                   (a) => a.id == question.quizState?.answerId,
@@ -100,7 +123,6 @@ export class QuestionContentExamComponent {
       .subscribe((multiplier) => {
         this.loadQuestion(multiplier);
       });
-    console.log('render card exam');
   }
 
   next() {
@@ -171,12 +193,28 @@ export class QuestionContentExamComponent {
       }
     }
   }
+
   onErrorLoadImage(img: HTMLImageElement) {
     this.hasImage = false;
     console.log('no image');
   }
 
   ngOnDestroy() {
-    console.log('Leaving Route A');
+    //console.log('Leaving Route A');
+  }
+
+  fillAnswered(resultExamItem: ResultExam) {
+    const recordAns = resultExamItem.answers;
+
+    const listQuestionHis = this.questionService.loadQuestionByChapterID();
+    
+    // resultExamItem.questionIds.map((q) => {
+    //   const qz = recordAns[q.questionNumber]; 
+    //   if (qz) {
+    //     q.state = 'answered';
+    //   } else {
+    //     q.state = 'default';
+    //   }
+    // });
   }
 }

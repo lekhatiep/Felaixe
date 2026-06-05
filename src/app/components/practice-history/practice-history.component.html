@@ -1,15 +1,16 @@
 <div class="exam-history-section">
   <div class="history-header">
     <h3 class="history-title">
-      <i class="fas fa-history"></i>
+      <mat-icon>history</mat-icon>
       Lịch sử thi
     </h3>
     <button
       id="clearHistoryBtn"
       class="btn-clear-history"
       style="display: block"
+      (click)="deleteHistoryExam()"
     >
-      <i class="fas fa-trash"></i>
+       <mat-icon>delete</mat-icon>
       Xóa lịch sử
     </button>
   </div>

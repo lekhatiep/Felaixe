@@ -3,6 +3,7 @@ import { QuestionContainerComponent } from './components/question-container/ques
 import { ExamComponent } from './pages/exam/exam.component';
 import { PracticeTestComponent } from './components/practice-test/practice-test.component';
 import { confirmLeaveGuard } from './guards/confirm-leave.guard';
+import { ExamReviewComponent } from './pages/exam-review/exam-review.component';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,10 @@ export const routes: Routes = [
   {
     path: 'practice-test',
     component: PracticeTestComponent
+  },
+   {
+    path: 'exam-review/:id',
+    component: ExamReviewComponent
   },
   //NOTE: path ** always in end position
   {

@@ -2,6 +2,7 @@ import { Component, inject, Input, LOCALE_ID, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { ResultExam } from '../../../models/resultExam.model';
 import { formatDate } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-practice-history-item',
@@ -14,6 +15,7 @@ export class PracticeHistoryItemComponent implements OnInit {
   @Input() resultItem!: ResultExam;
 
   private locale = inject(LOCALE_ID);
+  private router = inject(Router);
 
   id: number = 0;
   score: number = 0;
@@ -24,6 +26,7 @@ export class PracticeHistoryItemComponent implements OnInit {
   dateExam!: Date;
   dateExamString: string = '';
   dateTimeSpentStr: string = '';
+  isPassed: boolean = false;
 
   ngOnInit(): void {
 
@@ -35,11 +38,12 @@ export class PracticeHistoryItemComponent implements OnInit {
     this.dateExam = this.resultItem.examDate;
     this.dateExamString = formatDate(this.resultItem.examDate, 'hh:mm:ss dd/MM/YYY', this.locale);
     this.dateTimeSpentStr = this.formatDuration(this.resultItem.durationSeconds);
+    this.isPassed = this.resultItem.isPassed;
     
   }
 
   viewExamDetail(id: number){
-
+    this.router.navigate(['/exam-review', id]);
   }
 
   formatDuration(totalSeconds: number): string {

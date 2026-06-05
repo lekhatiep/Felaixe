@@ -24,9 +24,7 @@ export class ExamService {
   listExamQuestion: Question[] = [];
 
   currentQuestion: Question | undefined;
-  currentQuestionSelectedSubject = new BehaviorSubject<Question | undefined>(
-    undefined,
-  );
+  currentQuestionSelectedSubject = new Subject<Question>();
   currentQuestionSelected$ = this.currentQuestionSelectedSubject.asObservable();
 
   questionNumberSelected: number = 1;
@@ -116,10 +114,10 @@ export class ExamService {
   }
 
   setCurrentQuestion(question: Question) {
-    if (this.currentQuestionSelectedSubject.value === question) {
-      return;
-    }
-    
+    // if (this.currentQuestionSelectedSubject.value === question) {
+    //   return;
+    // }
+
     this.currentQuestionSelectedSubject.next(question);
   }
 
@@ -237,7 +235,7 @@ export class ExamService {
           console.log('response', response);
 
           this.saveHistoryExam(response);
-          this.setCurrentPart(this.step_4)
+          this.setCurrentPart(this.step_4);
           //this.resetExamAnswers();
         },
         error: (err) => {
@@ -296,4 +294,28 @@ export class ExamService {
     this.multiplierExamSubject.next(type);
     this.currentMultiplier = type;
   }
+
+  getHistoryItemByID(Id: number): ResultExam | undefined {
+    const storedHistoryExam = localStorage.getItem('history-exam');
+    if (storedHistoryExam) {
+      const list: ResultExam[] = JSON.parse(storedHistoryExam);
+      const item = list.find((x) => x.id == Id);
+
+      return item;
+    } else {
+      return;
+    }
+  }
+
+  // loadAllQuestion() : Question[]{
+  //   const storedQuestions = localStorage.getItem('list-question');
+  //   if (storedQuestions) {
+  //     let questions: Question[] = JSON.parse(storedQuestions);
+     
+  //     return questions;
+  //   }
+
+    
+    
+  // }
 }

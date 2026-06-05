@@ -205,7 +205,6 @@ export class SideBarExamComponent {
 
   loadExamQuestion(multiplier: number) {
     this.examService.loadExamQuestions(multiplier).subscribe((data) => {
-      console.log(data);
       
       this.listQuestion = data;
       this.listQuestion.map((q) => ({

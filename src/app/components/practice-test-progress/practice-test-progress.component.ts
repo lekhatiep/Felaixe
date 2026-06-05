@@ -62,7 +62,7 @@ export class PracticeTestProgressComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    console.log(this.countDownTimerID);
+    //console.log(this.countDownTimerID);
     
     clearInterval(this.countDownTimerID);
   }
