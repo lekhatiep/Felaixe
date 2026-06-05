@@ -64,6 +64,9 @@ export class QuestionContentExamComponent {
 
   ngOnInit() {
     if (this.mode === 'review') {
+      this.isEndExam = true;
+      console.log(this.isEndExam);
+      
       console.log('mode review');
 
       this.activatedRouter.paramMap.subscribe((params) => {
@@ -77,7 +80,7 @@ export class QuestionContentExamComponent {
 
       console.log(this.resultExamItem);
       if (this.resultExamItem) {
-        this.fillAnswered(this.resultExamItem);
+       // this.fillAnswered(this.resultExamItem);
       }
     }
 
@@ -90,6 +93,8 @@ export class QuestionContentExamComponent {
         next: (question) => {
           if (question) {
             setTimeout(() => {
+              //console.log('selected side bar question');
+
               this.currentQuestion = question;
               this.index = this.examService.getCurrentIndex();
               this.hideNextBtn = this.index === this.listQuestion.length - 1;
@@ -100,6 +105,15 @@ export class QuestionContentExamComponent {
                   (a) => a.id == question.quizState?.answerId,
                 );
                 this.selectedAnswerId = answer?.id ?? 0;
+
+                if(this.mode == 'review'){
+                  const reviewAnswerId = question.answersRecord?.[question.questionNumber];
+                  const reviewAnswer = question.answers?.find(
+                    (a) => a.id == reviewAnswerId,
+                  );
+                  this.selectedAnswerId = reviewAnswer?.id ?? this.selectedAnswerId;
+                }
+
                 this.answered = true;
               } else {
                 this.resetDefault();
@@ -161,7 +175,7 @@ export class QuestionContentExamComponent {
     this.selectedAnswerId = answer.id;
     this.isCorrect = answer.isCorrect;
     this.answered = true;
-
+    
     this.examService.setCurrentAnswer(answer);
     this.examService.setQuizStateAnswer({
       questionNumber: this.currentQuestion?.questionNumber ?? 0,
@@ -205,16 +219,24 @@ export class QuestionContentExamComponent {
 
   fillAnswered(resultExamItem: ResultExam) {
     const recordAns = resultExamItem.answers;
+    const storedQuestions = localStorage.getItem('list-question');
 
-    const listQuestionHis = this.questionService.loadQuestionByChapterID();
+    if (storedQuestions) {
+      const listQuestionLocal: Question[] = JSON.parse(storedQuestions);
+      const listQuestionExam = listQuestionLocal.filter(question => resultExamItem.questionIds.includes(question.questionNumber))
+
+      listQuestionExam.map((q) => {
+      const qz = recordAns[q.questionNumber];
     
-    // resultExamItem.questionIds.map((q) => {
-    //   const qz = recordAns[q.questionNumber]; 
-    //   if (qz) {
-    //     q.state = 'answered';
-    //   } else {
-    //     q.state = 'default';
-    //   }
-    // });
+      if (qz) {
+         console.log(qz);
+        q.state = 'answered';
+      } else {
+        q.state = 'default';
+      }
+    });
+    }
+
+    
   }
 }

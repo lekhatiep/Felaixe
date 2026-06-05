@@ -10,10 +10,8 @@ import { SideBarWrapComponent } from "../side-bar-wrap/side-bar-wrap.component";
   selector: 'app-question-container',
   standalone: true,
   imports: [
-    SideBarQuestionComponent,
     QuestionCardComponent,
     QuestionContentExamComponent,
-    SideBarExamComponent,
     SideBarWrapComponent
 ],
   templateUrl: './question-container.component.html',
@@ -23,5 +21,8 @@ import { SideBarWrapComponent } from "../side-bar-wrap/side-bar-wrap.component";
 export class QuestionContainerComponent {
   @Input() mode: 'study' | 'exam' | 'review' = 'study';
 
-  
+  onInit(){
+    //console.log(this.mode);
+    
+  }
 }

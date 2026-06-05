@@ -13,7 +13,7 @@ import { SideBarQuestionComponent } from '../side-bar-question/side-bar-question
   encapsulation: ViewEncapsulation.None
 })
 export class SideBarWrapComponent implements OnInit {
-  @Input({required: true}) mode : string = 'study';
+  @Input({required: true}) mode :  "study" | "exam" | "review" = 'study';
   private examService = inject(ExamService);
 
   ngOnInit(): void {   
