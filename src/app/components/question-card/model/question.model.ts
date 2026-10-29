@@ -12,6 +12,8 @@ export interface Question extends QuestionResponseModel {
     state?: 'default' | 'active' | 'correct' | 'incorrect' | 'answered'
     isAnswered: boolean;
     quizState?: QuizState
+    answersRecord : Record<number, number> | undefined
+    source: string
 }
 
 export interface Answer {

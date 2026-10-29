@@ -17,10 +17,13 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { QuestionImageComponent } from '../question-image/question-image/question-image.component';
-import { delay, distinctUntilChanged, Observable } from 'rxjs';
+import { delay, distinctUntilChanged, filter, Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
 import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
+import { ResultExam } from '../../models/resultExam.model';
+import { ActivatedRoute } from '@angular/router';
+import { QuestionService } from '../../services/question.service';
 
 @Component({
   selector: 'app-question-content-exam',
@@ -31,11 +34,12 @@ import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
 })
 export class QuestionContentExamComponent {
   @Input() mode: 'study' | 'exam' | 'review' = 'study';
+  @Input() id!: string; // Router parameter url
 
-  private apiService = inject(ApiService);
+  private questionService = inject(QuestionService);
   private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
-  readonly dialog = inject(MatDialog);
+  private activatedRouter = inject(ActivatedRoute);
 
   isCorrect: boolean | null = null;
   listQuestion: Question[] = [];
@@ -53,30 +57,54 @@ export class QuestionContentExamComponent {
   isEndExam: boolean = false;
   hideNextBtn: boolean = false;
   hidePrevBtn: boolean = true;
-  
+  resultExamItem: ResultExam | undefined = undefined;
+  historyItemId!: string | null;
+  sourceComponent: string = 'QuestionContentExamComponent';
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
+    if (this.mode === 'review') {
+      this.activatedRouter.paramMap.subscribe((params) => {
+        this.historyItemId = params.get('id');
+      });
+
+      this.resultExamItem = this.examService.getHistoryItemByID(
+        Number(this.historyItemId),
+      );
+    }
+
     this.examService.currentQuestionSelected$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        filter(x=> x?.source !== this.sourceComponent)
         // delay(0)
       )
       .subscribe({
         next: (question) => {
           if (question) {
             setTimeout(() => {
+              //console.log('selected side bar question');
+
               this.currentQuestion = question;
               this.index = this.examService.getCurrentIndex();
               this.hideNextBtn = this.index === this.listQuestion.length - 1;
               this.hidePrevBtn = this.index === 0;
-              
+
               if (question.isAnswered) {
                 const answer = question.answers?.find(
                   (a) => a.id == question.quizState?.answerId,
                 );
                 this.selectedAnswerId = answer?.id ?? 0;
+
+                if(this.mode == 'review'){
+                  const reviewAnswerId = question.answersRecord?.[question.questionNumber];
+                  const reviewAnswer = question.answers?.find(
+                    (a) => a.id == reviewAnswerId,
+                  );
+                  this.selectedAnswerId = reviewAnswer?.id ?? this.selectedAnswerId;
+                }
+
                 this.answered = true;
               } else {
                 this.resetDefault();
@@ -100,12 +128,12 @@ export class QuestionContentExamComponent {
       .subscribe((multiplier) => {
         this.loadQuestion(multiplier);
       });
-    console.log('render card exam');
   }
 
   next() {
     this.index++;
     this.currentQuestion = this.listQuestion[this.index];
+    this.currentQuestion.source = this.sourceComponent;
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
@@ -118,6 +146,7 @@ export class QuestionContentExamComponent {
       this.index--;
     }
     this.currentQuestion = this.listQuestion[this.index];
+    this.currentQuestion.source = this.sourceComponent;
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
@@ -171,12 +200,13 @@ export class QuestionContentExamComponent {
       }
     }
   }
+
   onErrorLoadImage(img: HTMLImageElement) {
     this.hasImage = false;
     console.log('no image');
   }
 
   ngOnDestroy() {
-    console.log('Leaving Route A');
+    //console.log('Leaving Route A');
   }
 }

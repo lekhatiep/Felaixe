@@ -1,4 +1,4 @@
-<div class="chapter-list" [class.disabled] ="isEndExam">
+<div class="chapter-list" [class.disabled]="isEndExam">
   <div class="sidebar-section">
     <!-- Additional content for the sidebar -->
     <div class="question-number-list d-grid">
@@ -26,8 +26,10 @@
     </div>
   </div>
   <div class="sidebar-submit-wrapper">
-    <button class="btn-action btn-submit" (click)="openDialog($event)">
-      Nộp bài
-    </button>
+    @if (mode !== "review") {
+      <button class="btn-action btn-submit" (click)="openDialog($event)">
+        Nộp bài
+      </button>
+    }
   </div>
 </div>

@@ -38,12 +38,33 @@
       </h3>
     </div>
     <div class="search-wrapper">
-      <input
-        type="text"
-        id="searchInput"
-        class="search-input-modern"
-        placeholder="Nhập nội dung câu hỏi..."
-      />
+      <mat-form-field>
+        <input
+          class="search-input-modern custom-input-element"
+          type="text"
+          matInput
+          [formControl]="searchControl"
+          [matAutocomplete]="auto"
+        />
+      </mat-form-field>
+      <mat-autocomplete
+       panelClass="custom-autocomplete-panel"
+        #auto="matAutocomplete"
+        (optionSelected)="onQuestionSelected($event.option.value)"
+        [displayWith]="displayFn"
+      >
+        @for (q of filteredQuestion$ | async; track q) {
+          <mat-option [value]="q">
+            <div class="question-option-filter">
+              <span class="question-number-filter"> Câu {{ q.questionNumber }} </span>
+
+              <span class="question-content-filter">
+                {{ q.content }}
+              </span>
+            </div>
+          </mat-option>
+        }
+      </mat-autocomplete>
       <span class="search-icon">
         <mat-icon>search</mat-icon>
       </span>
@@ -56,26 +77,30 @@
     <!-- Additional content for the sidebar -->
     <div class="sibar-header-action">
       <h3 class="sidebar-section-title">Danh sách câu hỏi</h3>
-      <button class="btn-reset-score" (click)="removeQuizState()">Xóa điểm</button>
+      <button class="btn-reset-score" (click)="removeQuizState()">
+        Xóa điểm
+      </button>
     </div>
     <div class="question-number-list d-grid">
       <!-- List of questions will be rendered here -->
-       @if(listQuestion.length > 0) {
-         @for (question of listQuestion; track question.questionNumber) {
-           <button
-             type="button"
-             id="cau{{ question.questionNumber }}"
-             class="question-number"
-             [ngClass]="question.state"
-             style=""
-              (click)="selectQuestion(question)"
-           >
-             {{ question.questionNumber }}
-           </button>
-         }
-       } @else {
-         <span class="text-muted">Không có câu hỏi nào. Vui lòng chọn chương để tải câu hỏi.</span>
-
-       }
+      @if (listQuestion.length > 0) {
+        @for (question of listQuestion; track question.questionNumber) {
+          <button
+            type="button"
+            id="cau{{ question.questionNumber }}"
+            class="question-number"
+            [ngClass]="question.state"
+            style=""
+            (click)="selectQuestion(question)"
+          >
+            {{ question.questionNumber }}
+          </button>
+        }
+      } @else {
+        <span class="text-muted"
+          >Không có câu hỏi nào. Vui lòng chọn chương để tải câu hỏi.</span
+        >
+      }
+    </div>
   </div>
 </div>

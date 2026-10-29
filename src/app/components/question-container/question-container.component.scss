@@ -2,7 +2,7 @@
   display: flex;
   gap: 20px;
   max-width: 1400px;
-  height: 100vh;
+  height: 80vh;
   margin: 0 auto;
   background-color: #fff;
   border: solid 1px #878787;
@@ -10,7 +10,7 @@
   padding: 20px;
 }
 .side-bar-question {
-  width: 300px;
+  // width: 300px;
   padding: 20px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
@@ -23,6 +23,7 @@
   padding: 20px;
   border-radius: 10px;
   border: solid 1px #f0f0f0;
+  max-height: calc(100vh - 40px);
 }
 .header {
   font-size: 24px;
@@ -44,4 +45,14 @@
 
 .mat-typography {
   background-color: #f9f9f9;
+}
+
+@media (max-width: 768px) {
+  .quiz-main-wrapper,
+  .question-container {
+    flex-direction: column;
+  }
+
+  .flex-container {
+  }
 }

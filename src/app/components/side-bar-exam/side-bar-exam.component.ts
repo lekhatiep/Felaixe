@@ -3,6 +3,7 @@ import {
   DestroyRef,
   HostListener,
   inject,
+  Input,
   ViewEncapsulation,
 } from '@angular/core';
 import {
@@ -12,11 +13,13 @@ import {
 } from '../question-card/model/question.model';
 import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExamService } from '../../services/exam.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
+import { ResultExam } from '../../models/resultExam.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-side-bar-exam',
@@ -26,9 +29,12 @@ import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.compone
   styleUrl: './side-bar-exam.component.scss',
 })
 export class SideBarExamComponent {
+  @Input() mode: 'study' | 'exam' | 'review' = 'study';
+
   private examService = inject(ExamService);
   private destroyRef = inject(DestroyRef);
   readonly dialog = inject(MatDialog);
+  private activatedRouter = inject(ActivatedRoute);
 
   selected = 'option2';
   selectChapterId: number = 0;
@@ -44,6 +50,9 @@ export class SideBarExamComponent {
   currentTime: number = 0;
   isEndExam: boolean = false;
   startTime!: Date;
+  resultExamItem: ResultExam | undefined = undefined;
+  historyItemId!: string | null;
+  sourceComponent: string = 'SideBarExamComponent';
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: any) {
@@ -55,6 +64,23 @@ export class SideBarExamComponent {
   ngOnInit() {
     this.startTime = new Date();
 
+    if (this.mode === 'review') {
+      console.log('mode review');
+
+      this.activatedRouter.paramMap.subscribe((params) => {
+        this.historyItemId = params.get('id');
+      });
+
+      this.resultExamItem = this.examService.getHistoryItemByID(
+        Number(this.historyItemId),
+      );
+
+      if (this.resultExamItem) {
+        this.fillAnswered(this.resultExamItem);
+      }
+
+      // return;
+    }
     //  this.examService.currentAnswerSelected$
     //    .pipe(takeUntilDestroyed(this.destroyRef))
     //    .subscribe({
@@ -74,7 +100,11 @@ export class SideBarExamComponent {
       });
 
     this.examService.currentQuestionSelected$
-      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        distinctUntilChanged(),
+        filter((x) => x?.source !== this.sourceComponent),
+      )
       .subscribe({
         next: (question) => {
           if (question) {
@@ -128,6 +158,36 @@ export class SideBarExamComponent {
   selectQuestion(selectQuestion: Question) {
     //Get history quizState
     console.log('selectQuestion');
+    selectQuestion.source = this.sourceComponent;
+
+    //<<MODE review exam
+    if (this.mode == 'review') {
+      const qAnswer =
+        this.resultExamItem?.answers[selectQuestion.questionNumber];
+      selectQuestion.isAnswered = qAnswer ? true : false;
+      selectQuestion.answersRecord = this.resultExamItem?.answers;
+
+      this.listQuestion.map((q) => {
+        const correctQuestion = this.resultExamItem?.correctQuestionIds.find(
+          (qNumber) => q.questionNumber == qNumber,
+        );
+        if (correctQuestion) {
+          q.state = 'correct';
+        } else {
+          q.state = 'incorrect';
+        }
+      });
+
+      selectQuestion.state = 'active';
+
+      this.examService.setCurrentQuestion(selectQuestion);
+
+      this.currentIndex = this.listQuestion.indexOf(selectQuestion);
+      this.examService.setCurrentIndex(this.currentIndex);
+
+      return;
+    }
+    //MODE review exam >>
 
     const ansQuizState = this.listQuizState.find(
       (q) => q.questionNumber == selectQuestion.questionNumber,
@@ -199,14 +259,11 @@ export class SideBarExamComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log(result);
-   
     });
   }
 
   loadExamQuestion(multiplier: number) {
     this.examService.loadExamQuestions(multiplier).subscribe((data) => {
-      console.log(data);
-      
       this.listQuestion = data;
       this.listQuestion.map((q) => ({
         ...q,
@@ -225,5 +282,30 @@ export class SideBarExamComponent {
       });
       this.selectQuestion(this.listQuestion[0]);
     });
+  }
+
+  fillAnswered(resultExamItem: ResultExam) {
+    const storedQuestions = localStorage.getItem('list-question');
+    if (storedQuestions) {
+      const listQuestionLocal: Question[] = JSON.parse(storedQuestions);
+
+      const listQuestionExamReview = listQuestionLocal.filter((question) =>
+        resultExamItem.questionIds.includes(question.questionNumber),
+      );
+
+      listQuestionExamReview.map((q) => {
+        const correctQuestion = resultExamItem.correctQuestionIds.find(
+          (qNumber) => q.questionNumber == qNumber,
+        );
+        if (correctQuestion) {
+          q.state = 'correct';
+        } else {
+          q.state = 'incorrect';
+        }
+      });
+
+      this.listQuestion = listQuestionExamReview;
+      this.selectQuestion(this.listQuestion[0]);
+    }
   }
 }

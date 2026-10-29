@@ -48,7 +48,7 @@ export class ExamComponent implements OnInit, HasUnsavedChanges {
     console.log('step' + this.step);
 
     //this.step = 1;
-    this.examService.setCurrentPart(4);
+    this.examService.setCurrentPart(1);
 
     this.examService.currentPart$
       .pipe(takeUntilDestroyed(this.destroyRef))

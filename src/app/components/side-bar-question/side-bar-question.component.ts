@@ -11,8 +11,13 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
@@ -25,7 +30,9 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { ApiService } from '../../services/api.service';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, map, Observable, startWith } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-side-bar-question',
@@ -36,11 +43,17 @@ import { distinctUntilChanged } from 'rxjs';
     ReactiveFormsModule,
     MatIconModule,
     CommonModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    AsyncPipe,
   ],
   templateUrl: './side-bar-question.component.html',
   styleUrl: './side-bar-question.component.scss',
 })
 export class SideBarQuestionComponent implements OnInit {
+  searchControl = new FormControl<string | Question>('');
+  filteredQuestion$ : Observable<Question[]>;
+
   private questionService = inject(QuestionService);
   private apiService = inject(ApiService);
   private destroyRef = inject(DestroyRef);
@@ -80,7 +93,17 @@ export class SideBarQuestionComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private cdRef: ChangeDetectorRef,
-  ) {}
+  ) {
+    this.filteredQuestion$ = this.searchControl.valueChanges.pipe(
+      startWith(''),
+      map(value =>{
+        const keyword = (value || '').toString().toLowerCase();
+
+        return this._filterQuestion(keyword); 
+      })
+    )
+
+  }
 
   ngOnInit() {
     this.listChapter = this.questionService.getListChapter();
@@ -172,7 +195,7 @@ export class SideBarQuestionComponent implements OnInit {
       ...q,
       state: 'default',
     }));
-   
+
     this.listQuizState = this.questionService.loadQuizStateAns();
 
     this.listQuestion.map((q) => {
@@ -184,7 +207,6 @@ export class SideBarQuestionComponent implements OnInit {
       }
     });
     this.selectQuestion(this.listQuestion[0]);
-    
   }
 
   selectQuestion(selectQuestion: Question) {
@@ -219,4 +241,19 @@ export class SideBarQuestionComponent implements OnInit {
   removeQuizState() {
     localStorage.removeItem('list-quiz-state');
   }
+
+  onQuestionSelected(question: Question) {
+    console.log(question);
+    this.selectQuestion(question);
+  }
+
+  displayFn(question: Question): string {
+    return question && question.content ? question.content : '';
+  }
+
+  private _filterQuestion(content: string) : Question[]{
+    const filterValue = content.toLowerCase();
+    return this.listQuestion.filter(q=> q.content.toLowerCase().includes(filterValue) || q.questionNumber === +filterValue)
+  }
+
 }

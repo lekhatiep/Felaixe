@@ -9,12 +9,15 @@ import {
 import { ApiService } from './api.service';
 import { SubmissionExam } from '../models/submissionExam.model';
 import { ResultExam } from '../models/resultExam.model';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExamService {
   private apiService = inject(ApiService);
+  private router = inject(Router);
+
   exercise_mode = AppConstants.STUDY;
   step_4: number = 4; /*Show ket qua*/
 
@@ -24,9 +27,7 @@ export class ExamService {
   listExamQuestion: Question[] = [];
 
   currentQuestion: Question | undefined;
-  currentQuestionSelectedSubject = new BehaviorSubject<Question | undefined>(
-    undefined,
-  );
+  currentQuestionSelectedSubject = new BehaviorSubject<Question | undefined>(undefined);
   currentQuestionSelected$ = this.currentQuestionSelectedSubject.asObservable();
 
   questionNumberSelected: number = 1;
@@ -116,10 +117,12 @@ export class ExamService {
   }
 
   setCurrentQuestion(question: Question) {
-    if (this.currentQuestionSelectedSubject.value === question) {
-      return;
-    }
-    
+        console.log('setCurrentQuestion');
+        const current = this.currentQuestionSelectedSubject.value;
+    if (current?.questionNumber === question.questionNumber) {
+       return;
+     }
+
     this.currentQuestionSelectedSubject.next(question);
   }
 
@@ -237,7 +240,7 @@ export class ExamService {
           console.log('response', response);
 
           this.saveHistoryExam(response);
-          this.setCurrentPart(this.step_4)
+          this.navigateExamReview();
           //this.resetExamAnswers();
         },
         error: (err) => {
@@ -295,5 +298,32 @@ export class ExamService {
   setMultiplierExam(type: number) {
     this.multiplierExamSubject.next(type);
     this.currentMultiplier = type;
+  }
+
+  getHistoryItemByID(Id: number): ResultExam | undefined {
+    const storedHistoryExam = localStorage.getItem('history-exam');
+    if (storedHistoryExam) {
+      const list: ResultExam[] = JSON.parse(storedHistoryExam);
+      const item = list.find((x) => x.id == Id);
+
+      return item;
+    } else {
+      return;
+    }
+  }
+
+  navigateExamReview() {
+    let listResult : ResultExam[] = this.loadHistoryExam();
+    let itemID = 0;
+    if (listResult) {
+      listResult = [...listResult].reverse();
+      const newestResult = listResult[0];
+      if(newestResult){
+        itemID = newestResult.id;
+      }
+     
+    }
+
+    this.router.navigate([`/exam-review/${itemID}`])
   }
 }
