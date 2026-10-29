@@ -13,6 +13,7 @@ export interface Question extends QuestionResponseModel {
     isAnswered: boolean;
     quizState?: QuizState
     answersRecord : Record<number, number> | undefined
+    source: string
 }
 
 export interface Answer {

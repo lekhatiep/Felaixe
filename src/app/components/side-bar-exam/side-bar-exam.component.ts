@@ -13,7 +13,7 @@ import {
 } from '../question-card/model/question.model';
 import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { distinctUntilChanged } from 'rxjs';
+import { distinctUntilChanged, filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExamService } from '../../services/exam.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -52,6 +52,7 @@ export class SideBarExamComponent {
   startTime!: Date;
   resultExamItem: ResultExam | undefined = undefined;
   historyItemId!: string | null;
+  sourceComponent: string = 'SideBarExamComponent';
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: any) {
@@ -69,18 +70,16 @@ export class SideBarExamComponent {
       this.activatedRouter.paramMap.subscribe((params) => {
         this.historyItemId = params.get('id');
       });
-      console.log(this.historyItemId);
 
       this.resultExamItem = this.examService.getHistoryItemByID(
         Number(this.historyItemId),
       );
 
-      console.log(this.resultExamItem);
       if (this.resultExamItem) {
         this.fillAnswered(this.resultExamItem);
       }
 
-     // return;
+      // return;
     }
     //  this.examService.currentAnswerSelected$
     //    .pipe(takeUntilDestroyed(this.destroyRef))
@@ -101,7 +100,11 @@ export class SideBarExamComponent {
       });
 
     this.examService.currentQuestionSelected$
-      .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        distinctUntilChanged(),
+        filter((x) => x?.source !== this.sourceComponent),
+      )
       .subscribe({
         next: (question) => {
           if (question) {
@@ -142,7 +145,7 @@ export class SideBarExamComponent {
     this.examService.multiplierExam$
       .pipe(takeUntilDestroyed(this.destroyRef), distinctUntilChanged())
       .subscribe((multiplier) => {
-        //this.loadExamQuestion(multiplier);
+        this.loadExamQuestion(multiplier);
       });
 
     this.currentIndex = this.examService.getCurrentIndex();
@@ -155,13 +158,14 @@ export class SideBarExamComponent {
   selectQuestion(selectQuestion: Question) {
     //Get history quizState
     console.log('selectQuestion');
+    selectQuestion.source = this.sourceComponent;
 
     //<<MODE review exam
     if (this.mode == 'review') {
-
-      const qAnswer = this.resultExamItem?.answers[selectQuestion.questionNumber]
+      const qAnswer =
+        this.resultExamItem?.answers[selectQuestion.questionNumber];
       selectQuestion.isAnswered = qAnswer ? true : false;
-      selectQuestion.answersRecord = this.resultExamItem?.answers
+      selectQuestion.answersRecord = this.resultExamItem?.answers;
 
       this.listQuestion.map((q) => {
         const correctQuestion = this.resultExamItem?.correctQuestionIds.find(
@@ -288,7 +292,6 @@ export class SideBarExamComponent {
       const listQuestionExamReview = listQuestionLocal.filter((question) =>
         resultExamItem.questionIds.includes(question.questionNumber),
       );
-      console.log(listQuestionExamReview);
 
       listQuestionExamReview.map((q) => {
         const correctQuestion = resultExamItem.correctQuestionIds.find(

@@ -29,7 +29,7 @@
       @if (mode == "study") {
         <app-question-card></app-question-card>
       } @else if (mode == "exam") {
-        <app-question-content-exam />
+        <app-question-content-exam  [mode]="'exam'"/>
       } @else {
         <app-question-content-exam [mode]="'review'" />
       }

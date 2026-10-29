@@ -17,7 +17,7 @@ import {
   QuizState,
 } from '../question-card/model/question.model';
 import { QuestionImageComponent } from '../question-image/question-image/question-image.component';
-import { delay, distinctUntilChanged, Observable } from 'rxjs';
+import { delay, distinctUntilChanged, filter, Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
 import { HasUnsavedChanges } from '../../guards/confirm-leave.guard';
@@ -59,34 +59,25 @@ export class QuestionContentExamComponent {
   hidePrevBtn: boolean = true;
   resultExamItem: ResultExam | undefined = undefined;
   historyItemId!: string | null;
+  sourceComponent: string = 'QuestionContentExamComponent';
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
     if (this.mode === 'review') {
-      this.isEndExam = true;
-      console.log(this.isEndExam);
-      
-      console.log('mode review');
-
       this.activatedRouter.paramMap.subscribe((params) => {
         this.historyItemId = params.get('id');
       });
-      console.log(this.historyItemId);
 
       this.resultExamItem = this.examService.getHistoryItemByID(
         Number(this.historyItemId),
       );
-
-      console.log(this.resultExamItem);
-      if (this.resultExamItem) {
-       // this.fillAnswered(this.resultExamItem);
-      }
     }
 
     this.examService.currentQuestionSelected$
       .pipe(
         takeUntilDestroyed(this.destroyRef),
+        filter(x=> x?.source !== this.sourceComponent)
         // delay(0)
       )
       .subscribe({
@@ -142,6 +133,7 @@ export class QuestionContentExamComponent {
   next() {
     this.index++;
     this.currentQuestion = this.listQuestion[this.index];
+    this.currentQuestion.source = this.sourceComponent;
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
@@ -154,6 +146,7 @@ export class QuestionContentExamComponent {
       this.index--;
     }
     this.currentQuestion = this.listQuestion[this.index];
+    this.currentQuestion.source = this.sourceComponent;
     this.isCorrect = null;
     //this.examService.setSelectedQuestionNumber(this.currentQuestion.questionNumber);
     this.examService.setCurrentQuestion(this.currentQuestion);
@@ -175,7 +168,7 @@ export class QuestionContentExamComponent {
     this.selectedAnswerId = answer.id;
     this.isCorrect = answer.isCorrect;
     this.answered = true;
-    
+
     this.examService.setCurrentAnswer(answer);
     this.examService.setQuizStateAnswer({
       questionNumber: this.currentQuestion?.questionNumber ?? 0,
@@ -215,28 +208,5 @@ export class QuestionContentExamComponent {
 
   ngOnDestroy() {
     //console.log('Leaving Route A');
-  }
-
-  fillAnswered(resultExamItem: ResultExam) {
-    const recordAns = resultExamItem.answers;
-    const storedQuestions = localStorage.getItem('list-question');
-
-    if (storedQuestions) {
-      const listQuestionLocal: Question[] = JSON.parse(storedQuestions);
-      const listQuestionExam = listQuestionLocal.filter(question => resultExamItem.questionIds.includes(question.questionNumber))
-
-      listQuestionExam.map((q) => {
-      const qz = recordAns[q.questionNumber];
-    
-      if (qz) {
-         console.log(qz);
-        q.state = 'answered';
-      } else {
-        q.state = 'default';
-      }
-    });
-    }
-
-    
   }
 }
